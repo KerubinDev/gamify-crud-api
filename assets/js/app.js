@@ -4,7 +4,7 @@
  */
 
 // Configurações da API
-const API_BASE_URL = '/api';
+const API_BASE_URL = '/gamify-crud-api/api';
 const API_ENDPOINTS = {
     auth: '/auth',
     usuarios: '/usuarios',

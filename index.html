@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏆 Vida Equilibrada - Sistema Gamificado</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>Vida Equilibrada</h1>
+                </div>
+                <nav class="nav">
+                    <ul>
+                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a></li>
+                        <li><a href="#habitos" class="nav-link" data-section="habitos">Hábitos</a></li>
+                        <li><a href="#ranking" class="nav-link" data-section="ranking">Ranking</a></li>
+                        <li><a href="#conquistas" class="nav-link" data-section="conquistas">Conquistas</a></li>
+                        <li><a href="#perfil" class="nav-link" data-section="perfil">Perfil</a></li>
+                    </ul>
+                </nav>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">Usuário</span>
+                        <span class="user-level" id="userLevel">Nível 1</span>
+                    </div>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Bem-vindo, Guerreiro do Equilíbrio!</h2>
+                <p>Entre na sua conta ou crie uma nova para começar sua jornada</p>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-tab="login">Entrar</button>
+                    <button class="tab-btn" data-tab="register">Cadastrar</button>
+                </div>
+                
+                <!-- Login Form -->
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Senha</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="auth-form" style="display: none;">
+                    <div class="form-group">
+                        <label for="registerName">Nome</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Senha</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm">Confirmar Senha</label>
+                        <input type="password" id="registerPasswordConfirm" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Cadastrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="section active">
+                <div class="dashboard-header">
+                    <h2>Dashboard do Guerreiro</h2>
+                    <p>Monitore seu progresso e conquistas</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="userPoints">0</h3>
+                            <p>Pontos</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="userStreak">0</h3>
+                            <p>Streak Atual</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="userLevel">1</h3>
+                            <p>Nível</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="userBadges">0</h3>
+                            <p>Conquistas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="dashboard-left">
+                        <div class="card">
+                            <h3>Progresso do Nível</h3>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="levelProgress"></div>
+                            </div>
+                            <p id="levelProgressText">0 / 100 pontos para o próximo nível</p>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Hábitos de Hoje</h3>
+                            <div id="todayHabits" class="habits-list">
+                                <p class="loading">Carregando hábitos...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-right">
+                        <div class="card">
+                            <h3>Top 5 Ranking</h3>
+                            <div id="topRanking" class="ranking-list">
+                                <p class="loading">Carregando ranking...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Últimas Conquistas</h3>
+                            <div id="recentBadges" class="badges-list">
+                                <p class="loading">Carregando conquistas...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hábitos Section -->
+            <section id="habitos" class="section">
+                <div class="section-header">
+                    <h2>Gerenciar Hábitos</h2>
+                    <button class="btn-primary" onclick="showCreateHabitModal()">
+                        <i class="fas fa-plus"></i> Novo Hábito
+                    </button>
+                </div>
+                
+                <div class="habits-container">
+                    <div class="habits-filters">
+                        <select id="categoryFilter">
+                            <option value="">Todas as Categorias</option>
+                            <option value="saude">Saúde</option>
+                            <option value="produtividade">Produtividade</option>
+                            <option value="bem_estar">Bem-estar</option>
+                            <option value="aprendizado">Aprendizado</option>
+                        </select>
+                        <select id="statusFilter">
+                            <option value="">Todos os Status</option>
+                            <option value="ativo">Ativo</option>
+                            <option value="inativo">Inativo</option>
+                        </select>
+                    </div>
+                    
+                    <div id="habitsList" class="habits-grid">
+                        <p class="loading">Carregando hábitos...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Ranking Section -->
+            <section id="ranking" class="section">
+                <div class="section-header">
+                    <h2>Ranking dos Guerreiros</h2>
+                    <div class="ranking-filters">
+                        <select id="rankingFilter">
+                            <option value="pontos">Por Pontos</option>
+                            <option value="badges">Por Conquistas</option>
+                            <option value="streak">Por Streak</option>
+                        </select>
+                        <select id="rankingPeriod">
+                            <option value="geral">Geral</option>
+                            <option value="semana">Esta Semana</option>
+                            <option value="mes">Este Mês</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="rankingList" class="ranking-container">
+                    <p class="loading">Carregando ranking...</p>
+                </div>
+            </section>
+
+            <!-- Conquistas Section -->
+            <section id="conquistas" class="section">
+                <div class="section-header">
+                    <h2>Conquistas e Badges</h2>
+                </div>
+                
+                <div class="badges-container">
+                    <div class="badges-stats">
+                        <div class="badge-stat">
+                            <h3 id="totalBadges">0</h3>
+                            <p>Total de Conquistas</p>
+                        </div>
+                        <div class="badge-stat">
+                            <h3 id="userBadgesCount">0</h3>
+                            <p>Suas Conquistas</p>
+                        </div>
+                        <div class="badge-stat">
+                            <h3 id="badgesProgress">0%</h3>
+                            <p>Progresso</p>
+                        </div>
+                    </div>
+                    
+                    <div id="badgesList" class="badges-grid">
+                        <p class="loading">Carregando conquistas...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Perfil Section -->
+            <section id="perfil" class="section">
+                <div class="section-header">
+                    <h2>Perfil do Guerreiro</h2>
+                    <button class="btn-secondary" onclick="showEditProfileModal()">
+                        <i class="fas fa-edit"></i> Editar Perfil
+                    </button>
+                </div>
+                
+                <div class="profile-container">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h3 id="profileName">Nome do Usuário</h3>
+                            <p id="profileEmail">email@exemplo.com</p>
+                            <div class="profile-stats">
+                                <span>Nível <span id="profileLevel">1</span></span>
+                                <span><span id="profilePoints">0</span> pontos</span>
+                                <span>Streak: <span id="profileStreak">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="card">
+                            <h3>Estatísticas Detalhadas</h3>
+                            <div id="profileStats" class="stats-list">
+                                <p class="loading">Carregando estatísticas...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <h3>Histórico de Atividade</h3>
+                            <div id="activityHistory" class="activity-list">
+                                <p class="loading">Carregando histórico...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Create Habit Modal -->
+    <div id="createHabitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Criar Novo Hábito</h2>
+                <button class="modal-close" onclick="closeModal('createHabitModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="createHabitForm">
+                    <div class="form-group">
+                        <label for="habitName">Nome do Hábito</label>
+                        <input type="text" id="habitName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="habitDescription">Descrição</label>
+                        <textarea id="habitDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="habitCategory">Categoria</label>
+                            <select id="habitCategory" required>
+                                <option value="saude">Saúde</option>
+                                <option value="produtividade">Produtividade</option>
+                                <option value="bem_estar">Bem-estar</option>
+                                <option value="aprendizado">Aprendizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="habitFrequency">Frequência</label>
+                            <select id="habitFrequency" required>
+                                <option value="diario">Diário</option>
+                                <option value="semanal">Semanal</option>
+                                <option value="mensal">Mensal</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="habitPoints">Pontos por Completamento</label>
+                        <input type="number" id="habitPoints" value="10" min="1" max="100" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('createHabitModal')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Criar Hábito</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Editar Perfil</h2>
+                <button class="modal-close" onclick="closeModal('editProfileModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editProfileForm">
+                    <div class="form-group">
+                        <label for="editName">Nome</label>
+                        <input type="text" id="editName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPassword">Nova Senha (opcional)</label>
+                        <input type="password" id="editPassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="editPasswordConfirm">Confirmar Nova Senha</label>
+                        <input type="password" id="editPasswordConfirm">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="closeModal('editProfileModal')">Cancelar</button>
+                        <button type="submit" class="btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/habits.js"></script>
+    <script src="assets/js/ranking.js"></script>
+    <script src="assets/js/badges.js"></script>
+    <script src="assets/js/profile.js"></script>
+</body>
+</html>

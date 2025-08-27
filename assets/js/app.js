@@ -27,8 +27,7 @@ class FitBattleApp {
         document.getElementById('learnMoreBtn')?.addEventListener('click', () => this.scrollToSection('features'));
         document.getElementById('joinNowBtn')?.addEventListener('click', () => this.showModal('registerModal'));
         
-        // Botões de ranking
-        document.getElementById('viewFullRankingBtn')?.addEventListener('click', () => this.viewFullRanking());
+        // Botões de ranking removidos - agora são links diretos
         
         // Botões de desafios
         document.getElementById('createChallengeBtn')?.addEventListener('click', () => this.createChallenge());
@@ -320,10 +319,7 @@ class FitBattleApp {
         }, 200);
     }
 
-    viewFullRanking() {
-        this.showNotification('📊 Redirecionando para o ranking completo...', 'info');
-        // Aqui você pode redirecionar para uma página de ranking completa
-    }
+
 
     createChallenge() {
         if (this.isAuthenticated) {

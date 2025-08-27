@@ -27,8 +27,7 @@ class RankingManager {
             tab.addEventListener('click', (e) => this.switchTab(e.target));
         });
 
-        // Botões de ação
-        document.getElementById('viewFullRankingBtn')?.addEventListener('click', () => this.viewFullRanking());
+        // Botões de ação removidos - agora são links diretos
         
         // Filtros (se existirem)
         this.setupFilters();
@@ -505,14 +504,7 @@ class RankingManager {
         console.log(`Visualizando perfil: ${username}`);
     }
 
-    viewFullRanking() {
-        if (window.app && window.app.showNotification) {
-            window.app.showNotification('📊 Redirecionando para o ranking completo...', 'info');
-        }
-        
-        // Aqui você pode redirecionar para uma página de ranking completa
-        console.log('Visualizando ranking completo');
-    }
+
 
     updateURL() {
         // Atualizar URL com a tab atual

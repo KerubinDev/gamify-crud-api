@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - FitBattle</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .ranking-hero {
+            background: var(--gradient-dark);
+            padding: 80px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ranking-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="rgba(255,107,53,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .ranking-hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ranking-hero p {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ranking-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid var(--primary-color);
+            box-shadow: var(--shadow-dark);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--white);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .ranking-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .ranking-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .ranking-tab {
+            background: var(--dark-bg);
+            color: var(--white);
+            border: 2px solid var(--primary-color);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .ranking-tab.active,
+        .ranking-tab:hover {
+            background: var(--primary-color);
+            color: var(--black);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .ranking-content {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-dark);
+            border: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .ranking-header {
+            display: grid;
+            grid-template-columns: 50px 1fr 100px 100px 100px;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--dark-bg);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+        }
+
+        .ranking-item {
+            display: grid;
+            grid-template-columns: 50px 1fr 100px 100px 100px;
+            gap: 1rem;
+            padding: 1.5rem 1rem;
+            background: var(--dark-bg);
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .ranking-item:hover {
+            transform: translateX(5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .ranking-item:nth-child(1) {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: var(--black);
+            border-color: #FFD700;
+        }
+
+        .ranking-item:nth-child(2) {
+            background: linear-gradient(135deg, #C0C0C0, #A9A9A9);
+            color: var(--black);
+            border-color: #C0C0C0;
+        }
+
+        .ranking-item:nth-child(3) {
+            background: linear-gradient(135deg, #CD7F32, #B8860B);
+            color: var(--white);
+            border-color: #CD7F32;
+        }
+
+        .rank-position {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--black);
+            font-size: 1.2rem;
+        }
+
+        .user-details h4 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .user-details p {
+            margin: 0;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .score,
+        .level,
+        .achievements {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 2rem;
+            left: 2rem;
+            background: var(--primary-color);
+            color: var(--black);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border: 2px solid var(--primary-color);
+        }
+
+        .back-button:hover {
+            background: transparent;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .ranking-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .ranking-header,
+            .ranking-item {
+                grid-template-columns: 40px 1fr 80px;
+                gap: 0.5rem;
+            }
+
+            .level,
+            .achievements {
+                display: none;
+            }
+
+            .ranking-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .ranking-tab {
+                width: 200px;
+            }
+
+            .back-button {
+                position: relative;
+                top: auto;
+                left: auto;
+                margin-bottom: 2rem;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← Voltar</a>
+
+    <section class="ranking-hero">
+        <div class="container">
+            <h1>🏆 Ranking Global</h1>
+            <p>Descubra quem são os melhores atletas da plataforma</p>
+            
+            <div class="ranking-stats">
+                <div class="stat-item">
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label">Atletas Ativos</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">89</div>
+                    <div class="stat-label">Países</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2.3M</div>
+                    <div class="stat-label">Pontos Totais</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">156</div>
+                    <div class="stat-label">Desafios</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="ranking-container">
+        <div class="ranking-tabs">
+            <button class="ranking-tab active" data-category="global">🌍 Global</button>
+            <button class="ranking-tab" data-category="running">🏃‍♂️ Corrida</button>
+            <button class="ranking-tab" data-category="gym">💪 Academia</button>
+            <button class="ranking-tab" data-category="yoga">🧘‍♀️ Yoga</button>
+            <button class="ranking-tab" data-category="hiit">🔥 HIIT</button>
+        </div>
+
+        <div class="ranking-content">
+            <div id="global-ranking" class="ranking-section active">
+                <div class="ranking-header">
+                    <div>#</div>
+                    <div>Atleta</div>
+                    <div>Pontos</div>
+                    <div>Nível</div>
+                    <div>Conquistas</div>
+                </div>
+                <div class="ranking-list" id="global-list">
+                    <!-- Ranking items will be loaded here -->
+                </div>
+            </div>
+
+            <div id="running-ranking" class="ranking-section">
+                <div class="ranking-header">
+                    <div>#</div>
+                    <div>Atleta</div>
+                    <div>Pontos</div>
+                    <div>Nível</div>
+                    <div>Conquistas</div>
+                </div>
+                <div class="ranking-list" id="running-list">
+                    <!-- Running ranking items will be loaded here -->
+                </div>
+            </div>
+
+            <div id="gym-ranking" class="ranking-section">
+                <div class="ranking-header">
+                    <div>#</div>
+                    <div>Atleta</div>
+                    <div>Pontos</div>
+                    <div>Nível</div>
+                    <div>Conquistas</div>
+                </div>
+                <div class="ranking-list" id="gym-list">
+                    <!-- Gym ranking items will be loaded here -->
+                </div>
+            </div>
+
+            <div id="yoga-ranking" class="ranking-section">
+                <div class="ranking-header">
+                    <div>#</div>
+                    <div>Atleta</div>
+                    <div>Pontos</div>
+                    <div>Nível</div>
+                    <div>Conquistas</div>
+                </div>
+                <div class="ranking-list" id="yoga-list">
+                    <!-- Yoga ranking items will be loaded here -->
+                </div>
+            </div>
+
+            <div id="hiit-ranking" class="ranking-section">
+                <div class="ranking-header">
+                    <div>#</div>
+                    <div>Atleta</div>
+                    <div>Pontos</div>
+                    <div>Nível</div>
+                    <div>Conquistas</div>
+                </div>
+                <div class="ranking-list" id="hiit-list">
+                    <!-- HIIT ranking items will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/ranking.js"></script>
+    <script>
+        // Ranking page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.ranking-tab');
+            const sections = document.querySelectorAll('.ranking-section');
+
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const category = tab.dataset.category;
+                    
+                    // Update active tab
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Update active section
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                        if (section.id === `${category}-ranking`) {
+                            section.classList.add('active');
+                        }
+                    });
+                });
+            });
+
+            // Load ranking data
+            loadRankingData();
+        });
+
+        function loadRankingData() {
+            // Global ranking
+            const globalData = [
+                { name: 'Renato Cariani', points: 2847, level: 42, achievements: 156, category: 'Fitness' },
+                { name: 'Aizan Bolt', points: 2654, level: 38, achievements: 142, category: 'Corrida' },
+                { name: 'Pelé Fitness', points: 2489, level: 35, achievements: 128, category: 'Futebol' },
+                { name: 'Gisele Bündchen', points: 2341, level: 33, achievements: 119, category: 'Yoga' },
+                { name: 'Ronaldo Fenômeno', points: 2187, level: 31, achievements: 108, category: 'Futebol' },
+                { name: 'Eliud Kipchoge', points: 2045, level: 29, achievements: 97, category: 'Maratona' },
+                { name: 'Haile Gebrselassie', points: 1987, level: 28, achievements: 89, category: 'Corrida' },
+                { name: 'Ronnie Coleman', points: 1876, level: 27, achievements: 84, category: 'Bodybuilding' },
+                { name: 'Arnold Schwarzenegger', points: 1765, level: 25, achievements: 76, category: 'Fitness' },
+                { name: 'Madonna', points: 1654, level: 23, achievements: 68, category: 'Yoga' }
+            ];
+
+            // Running ranking
+            const runningData = [
+                { name: 'Aizan Bolt', points: 2847, level: 42, achievements: 156, category: 'Corrida' },
+                { name: 'Eliud Kipchoge', points: 2654, level: 38, achievements: 142, category: 'Maratona' },
+                { name: 'Haile Gebrselassie', points: 2489, level: 35, achievements: 128, category: 'Corrida' },
+                { name: 'Renato Cariani', points: 2341, level: 33, achievements: 119, category: 'Fitness' },
+                { name: 'Pelé Fitness', points: 2187, level: 31, achievements: 108, category: 'Futebol' }
+            ];
+
+            // Gym ranking
+            const gymData = [
+                { name: 'Renato Cariani', points: 2847, level: 42, achievements: 156, category: 'Fitness' },
+                { name: 'Ronnie Coleman', points: 2654, level: 38, achievements: 142, category: 'Bodybuilding' },
+                { name: 'Arnold Schwarzenegger', points: 2489, level: 35, achievements: 128, category: 'Fitness' },
+                { name: 'Ronaldo Fenômeno', points: 2341, level: 33, achievements: 119, category: 'Futebol' },
+                { name: 'Aizan Bolt', points: 2187, level: 31, achievements: 108, category: 'Corrida' }
+            ];
+
+            // Yoga ranking
+            const yogaData = [
+                { name: 'Gisele Bündchen', points: 2847, level: 42, achievements: 156, category: 'Yoga' },
+                { name: 'Madonna', points: 2654, level: 38, achievements: 142, category: 'Yoga' },
+                { name: 'Jennifer Aniston', points: 2489, level: 35, achievements: 128, category: 'Yoga' },
+                { name: 'Renato Cariani', points: 2341, level: 33, achievements: 119, category: 'Fitness' },
+                { name: 'Aizan Bolt', points: 2187, level: 31, achievements: 108, category: 'Corrida' }
+            ];
+
+            // HIIT ranking
+            const hiitData = [
+                { name: 'Ronaldo Fenômeno', points: 2847, level: 42, achievements: 156, category: 'Futebol' },
+                { name: 'Pelé Fitness', points: 2654, level: 38, achievements: 142, category: 'Futebol' },
+                { name: 'Neymar Jr', points: 2489, level: 35, achievements: 128, category: 'Futebol' },
+                { name: 'Aizan Bolt', points: 2341, level: 33, achievements: 119, category: 'Corrida' },
+                { name: 'Renato Cariani', points: 2187, level: 31, achievements: 108, category: 'Fitness' }
+            ];
+
+            // Render rankings
+            renderRanking('global-list', globalData);
+            renderRanking('running-list', runningData);
+            renderRanking('gym-list', gymData);
+            renderRanking('yoga-list', yogaData);
+            renderRanking('hiit-list', hiitData);
+        }
+
+        function renderRanking(containerId, data) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            data.forEach((user, index) => {
+                const rankingItem = document.createElement('div');
+                rankingItem.className = 'ranking-item';
+                
+                const initials = user.name.split(' ').map(n => n[0]).join('');
+                
+                rankingItem.innerHTML = `
+                    <div class="rank-position">${index + 1}</div>
+                    <div class="user-info">
+                        <div class="user-avatar">${initials}</div>
+                        <div class="user-details">
+                            <h4>${user.name}</h4>
+                            <p>${user.category}</p>
+                        </div>
+                    </div>
+                    <div class="score">${user.points.toLocaleString()}</div>
+                    <div class="level">${user.level}</div>
+                    <div class="achievements">${user.achievements}</div>
+                `;
+                
+                container.appendChild(rankingItem);
+            });
+        }
+    </script>
+</body>
+</html>

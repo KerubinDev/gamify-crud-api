@@ -52,6 +52,7 @@ define('DB_PASS', 'sua_senha');
 
 ### **Credenciais de Teste**
 - **Email**: `admin@fitbattle.com`
+- **Usuário**: `Renato Cariani`
 - **Senha**: `password`
 
 ### **Funcionalidades para Testar**

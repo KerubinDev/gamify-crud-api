@@ -252,9 +252,9 @@ class AuthManager {
                     token: 'mock_jwt_token_' + Date.now(),
                     user: {
                         id: 1,
-                        username: 'admin',
-                        email: data.email,
-                        fullName: 'Administrador',
+                                        username: 'Renato Cariani',
+                email: data.email,
+                fullName: 'Renato Cariani',
                         totalPoints: 2500,
                         currentLevel: 25,
                         currentStreak: 7,
@@ -269,7 +269,7 @@ class AuthManager {
             }
         } else if (endpoint.includes('register')) {
             // Simular verificação de username/email único
-            if (data.username === 'admin') {
+            if (data.username === 'Renato Cariani') {
                 return {
                     success: false,
                     message: 'Nome de usuário já existe'

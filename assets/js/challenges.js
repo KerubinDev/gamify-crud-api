@@ -81,11 +81,11 @@ class ChallengeManager {
                 status: 'active',
                 startDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), // 4 dias atrás
                 endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 dias restantes
-                creator: 'FitnessKing',
+                creator: 'Renato Cariani',
                 participants: [
-                    { username: 'SpeedRunner', progress: 18.5, position: 1 },
-                    { username: 'MarathonMan', progress: 16.2, position: 2 },
-                    { username: 'TrailBlazer', progress: 14.8, position: 3 }
+                    { username: 'Aizan Bolt', progress: 18.5, position: 1 },
+                    { username: 'Eliud Kipchoge', progress: 16.2, position: 2 },
+                    { username: 'Haile Gebrselassie', progress: 14.8, position: 3 }
                 ],
                 rules: [
                     'Corrida deve ser registrada diariamente',
@@ -109,11 +109,11 @@ class ChallengeManager {
                 status: 'active',
                 startDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 dias atrás
                 endDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 dias restantes
-                creator: 'IronWoman',
+                creator: 'Renato Cariani',
                 participants: [
-                    { username: 'PowerLifter', progress: 78, position: 1 },
-                    { username: 'MuscleBuilder', progress: 65, position: 2 },
-                    { username: 'CrossFitPro', progress: 58, position: 3 }
+                    { username: 'Ronnie Coleman', progress: 78, position: 1 },
+                    { username: 'Arnold Schwarzenegger', progress: 65, position: 2 },
+                    { username: 'Ronaldo Fenômeno', progress: 58, position: 3 }
                 ],
                 rules: [
                     'Mínimo de 3 séries por dia',
@@ -137,11 +137,11 @@ class ChallengeManager {
                 status: 'active',
                 startDate: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000), // 22 dias atrás
                 endDate: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000), // 8 dias restantes
-                creator: 'YogaMaster',
+                creator: 'Gisele Bündchen',
                 participants: [
-                    { username: 'ZenSeeker', progress: 30, position: 1 },
-                    { username: 'MindfulOne', progress: 28, position: 2 },
-                    { username: 'PeacefulSoul', progress: 26, position: 3 }
+                    { username: 'Madonna', progress: 30, position: 1 },
+                    { username: 'Jennifer Aniston', progress: 28, position: 2 },
+                    { username: 'Gisele Bündchen', progress: 26, position: 3 }
                 ],
                 rules: [
                     'Sessão mínima de 20 minutos',
@@ -165,11 +165,11 @@ class ChallengeManager {
                 status: 'active',
                 startDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 dias atrás
                 endDate: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000), // 50 dias restantes
-                creator: 'CrossFitPro',
+                creator: 'Ronaldo Fenômeno',
                 participants: [
-                    { username: 'HIITMaster', progress: 25, position: 1 },
-                    { username: 'ExplosiveRunner', progress: 22, position: 2 },
-                    { username: 'CardioKing', progress: 18, position: 3 }
+                    { username: 'Pelé Fitness', progress: 25, position: 1 },
+                    { username: 'Neymar Jr', progress: 22, position: 2 },
+                    { username: 'Aizan Bolt', progress: 18, position: 3 }
                 ],
                 rules: [
                     'Sessão mínima de 15 minutos',

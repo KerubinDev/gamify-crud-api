@@ -117,37 +117,37 @@ class RankingManager {
 
         const mockRankings = {
             global: [
-                { position: 1, username: 'FitnessKing', points: 15420, level: 154, streak: 45, region: 'SP', age: 28, profileImage: null },
-                { position: 2, username: 'IronWoman', points: 12850, level: 128, streak: 32, region: 'RJ', age: 31, profileImage: null },
-                { position: 3, username: 'SpeedRunner', points: 11200, level: 112, streak: 28, region: 'MG', age: 25, profileImage: null },
-                { position: 4, username: 'YogaMaster', points: 9850, level: 98, streak: 67, region: 'RS', age: 35, profileImage: null },
-                { position: 5, username: 'CrossFitPro', points: 8750, level: 87, streak: 23, region: 'BA', age: 29, profileImage: null },
-                { position: 6, username: 'MarathonMan', points: 8200, level: 82, streak: 15, region: 'SC', age: 33, profileImage: null },
-                { position: 7, username: 'TrailBlazer', points: 7650, level: 76, streak: 42, region: 'PR', age: 27, profileImage: null },
-                { position: 8, username: 'PowerLifter', points: 7200, level: 72, streak: 19, region: 'GO', age: 30, profileImage: null },
-                { position: 9, username: 'ZenSeeker', points: 6800, level: 68, streak: 89, region: 'CE', age: 26, profileImage: null },
-                { position: 10, username: 'MindfulOne', points: 6400, level: 64, streak: 45, region: 'PE', age: 32, profileImage: null }
+                { position: 1, username: 'Renato Cariani', points: 15420, level: 154, streak: 45, region: 'SP', age: 28, profileImage: null },
+                { position: 2, username: 'Aizan Bolt', points: 12850, level: 128, streak: 32, region: 'RJ', age: 31, profileImage: null },
+                { position: 3, username: 'Pelé Fitness', points: 11200, level: 112, streak: 28, region: 'MG', age: 25, profileImage: null },
+                { position: 4, username: 'Gisele Bündchen', points: 9850, level: 98, streak: 67, region: 'RS', age: 35, profileImage: null },
+                { position: 5, username: 'Ronaldo Fenômeno', points: 8750, level: 87, streak: 23, region: 'BA', age: 29, profileImage: null },
+                { position: 6, username: 'Eliud Kipchoge', points: 8200, level: 82, streak: 15, region: 'SC', age: 33, profileImage: null },
+                { position: 7, username: 'Haile Gebrselassie', points: 7650, level: 76, streak: 42, region: 'PR', age: 27, profileImage: null },
+                { position: 8, username: 'Ronnie Coleman', points: 7200, level: 72, streak: 19, region: 'GO', age: 30, profileImage: null },
+                { position: 9, username: 'Madonna', points: 6800, level: 68, streak: 89, region: 'CE', age: 26, profileImage: null },
+                { position: 10, username: 'Jennifer Aniston', points: 6400, level: 64, streak: 45, region: 'PE', age: 32, profileImage: null }
             ],
             running: [
-                { position: 1, username: 'SpeedRunner', points: 11200, level: 112, streak: 28, region: 'MG', age: 25, profileImage: null },
-                { position: 2, username: 'MarathonMan', points: 8900, level: 89, streak: 15, region: 'SC', age: 33, profileImage: null },
-                { position: 3, username: 'TrailBlazer', points: 7650, level: 76, streak: 42, region: 'PR', age: 27, profileImage: null },
-                { position: 4, username: 'FitnessKing', points: 7200, level: 72, streak: 20, region: 'SP', age: 28, profileImage: null },
-                { position: 5, username: 'IronWoman', points: 6800, level: 68, streak: 18, region: 'RJ', age: 31, profileImage: null }
+                { position: 1, username: 'Aizan Bolt', points: 11200, level: 112, streak: 28, region: 'MG', age: 25, profileImage: null },
+                { position: 2, username: 'Eliud Kipchoge', points: 8900, level: 89, streak: 15, region: 'SC', age: 33, profileImage: null },
+                { position: 3, username: 'Haile Gebrselassie', points: 7650, level: 76, streak: 42, region: 'PR', age: 27, profileImage: null },
+                { position: 4, username: 'Renato Cariani', points: 7200, level: 72, streak: 20, region: 'SP', age: 28, profileImage: null },
+                { position: 5, username: 'Aizan Bolt', points: 6800, level: 68, streak: 18, region: 'RJ', age: 31, profileImage: null }
             ],
             gym: [
-                { position: 1, username: 'IronWoman', points: 12850, level: 128, streak: 32, region: 'RJ', age: 31, profileImage: null },
-                { position: 2, username: 'PowerLifter', points: 10200, level: 102, streak: 25, region: 'GO', age: 30, profileImage: null },
-                { position: 3, username: 'CrossFitPro', points: 8750, level: 87, streak: 23, region: 'BA', age: 29, profileImage: null },
-                { position: 4, username: 'FitnessKing', points: 8200, level: 82, streak: 22, region: 'SP', age: 28, profileImage: null },
-                { position: 5, username: 'MuscleBuilder', points: 7800, level: 78, streak: 16, region: 'MG', age: 26, profileImage: null }
+                { position: 1, username: 'Renato Cariani', points: 12850, level: 128, streak: 32, region: 'RJ', age: 31, profileImage: null },
+                { position: 2, username: 'Ronnie Coleman', points: 10200, level: 102, streak: 25, region: 'GO', age: 30, profileImage: null },
+                { position: 3, username: 'Ronaldo Fenômeno', points: 8750, level: 87, streak: 23, region: 'BA', age: 29, profileImage: null },
+                { position: 4, username: 'Renato Cariani', points: 8200, level: 82, streak: 22, region: 'SP', age: 28, profileImage: null },
+                { position: 5, username: 'Arnold Schwarzenegger', points: 7800, level: 78, streak: 16, region: 'MG', age: 26, profileImage: null }
             ],
             yoga: [
-                { position: 1, username: 'YogaMaster', points: 9850, level: 98, streak: 67, region: 'RS', age: 35, profileImage: null },
-                { position: 2, username: 'ZenSeeker', points: 7200, level: 72, streak: 89, region: 'CE', age: 26, profileImage: null },
-                { position: 3, username: 'MindfulOne', points: 6100, level: 61, streak: 45, region: 'PE', age: 32, profileImage: null },
-                { position: 4, username: 'PeacefulSoul', points: 5800, level: 58, streak: 38, region: 'DF', age: 29, profileImage: null },
-                { position: 5, username: 'SerenityNow', points: 5400, level: 54, streak: 52, region: 'MT', age: 34, profileImage: null }
+                { position: 1, username: 'Gisele Bündchen', points: 9850, level: 98, streak: 67, region: 'RS', age: 35, profileImage: null },
+                { position: 2, username: 'Madonna', points: 7200, level: 72, streak: 89, region: 'CE', age: 26, profileImage: null },
+                { position: 3, username: 'Jennifer Aniston', points: 6100, level: 61, streak: 45, region: 'PE', age: 32, profileImage: null },
+                { position: 4, username: 'Gisele Bündchen', points: 5800, level: 58, streak: 38, region: 'DF', age: 29, profileImage: null },
+                { position: 5, username: 'Madonna', points: 5400, level: 54, streak: 52, region: 'MT', age: 34, profileImage: null }
             ]
         };
 

@@ -604,8 +604,8 @@ CREATE INDEX idx_notifications_user_read ON notifications(user_id, is_read, crea
 
 -- Inserir usuário de exemplo
 INSERT INTO users (username, email, password_hash, full_name, city, state, country) VALUES
-('admin', 'admin@fitbattle.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrador', 'São Paulo', 'SP', 'Brasil'),
-('testuser', 'test@fitbattle.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Usuário Teste', 'Rio de Janeiro', 'RJ', 'Brasil');
+('Renato Cariani', 'admin@fitbattle.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Renato Cariani', 'São Paulo', 'SP', 'Brasil'),
+('Aizan Bolt', 'test@fitbattle.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Aizan Bolt', 'Rio de Janeiro', 'RJ', 'Brasil');
 
 -- =====================================================
 -- FIM DO SCRIPT

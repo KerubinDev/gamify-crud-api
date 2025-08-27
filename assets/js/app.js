@@ -159,9 +159,9 @@ class FitBattleApp {
         if (email === 'admin@fitbattle.com' && password === 'password') {
             this.currentUser = {
                 id: 1,
-                username: 'admin',
+                username: 'Renato Cariani',
                 email: email,
-                fullName: 'Administrador',
+                fullName: 'Renato Cariani',
                 totalPoints: 2500,
                 currentLevel: 25,
                 currentStreak: 7
@@ -263,26 +263,26 @@ class FitBattleApp {
         // Simular dados de ranking
         const mockRankings = {
             global: [
-                { position: 1, username: 'FitnessKing', points: 15420, level: 154, streak: 45 },
-                { position: 2, username: 'IronWoman', points: 12850, level: 128, streak: 32 },
-                { position: 3, username: 'SpeedRunner', points: 11200, level: 112, streak: 28 },
-                { position: 4, username: 'YogaMaster', points: 9850, level: 98, streak: 67 },
-                { position: 5, username: 'CrossFitPro', points: 8750, level: 87, streak: 23 }
+                { position: 1, username: 'Renato Cariani', points: 15420, level: 154, streak: 45 },
+                { position: 2, username: 'Aizan Bolt', points: 12850, level: 128, streak: 32 },
+                { position: 3, username: 'Pelé Fitness', points: 11200, level: 112, streak: 28 },
+                { position: 4, username: 'Neymar Jr', points: 9850, level: 98, streak: 67 },
+                { position: 5, username: 'Ronaldo Fenômeno', points: 8750, level: 87, streak: 23 }
             ],
             running: [
-                { position: 1, username: 'SpeedRunner', points: 11200, level: 112, streak: 28 },
-                { position: 2, username: 'MarathonMan', points: 8900, level: 89, streak: 15 },
-                { position: 3, username: 'TrailBlazer', points: 7650, level: 76, streak: 42 }
+                { position: 1, username: 'Aizan Bolt', points: 11200, level: 112, streak: 28 },
+                { position: 2, username: 'Eliud Kipchoge', points: 8900, level: 89, streak: 15 },
+                { position: 3, username: 'Haile Gebrselassie', points: 7650, level: 76, streak: 42 }
             ],
             gym: [
-                { position: 1, username: 'IronWoman', points: 12850, level: 128, streak: 32 },
-                { position: 2, username: 'MuscleBuilder', points: 10200, level: 102, streak: 18 },
-                { position: 3, username: 'PowerLifter', points: 8900, level: 89, streak: 25 }
+                { position: 1, username: 'Renato Cariani', points: 12850, level: 128, streak: 32 },
+                { position: 2, username: 'Arnold Schwarzenegger', points: 10200, level: 102, streak: 18 },
+                { position: 3, username: 'Ronnie Coleman', points: 8900, level: 89, streak: 25 }
             ],
             yoga: [
-                { position: 1, username: 'YogaMaster', points: 9850, level: 98, streak: 67 },
-                { position: 2, username: 'ZenSeeker', points: 7200, level: 72, streak: 89 },
-                { position: 3, username: 'MindfulOne', points: 6100, level: 61, streak: 45 }
+                { position: 1, username: 'Gisele Bündchen', points: 9850, level: 98, streak: 67 },
+                { position: 2, username: 'Madonna', points: 7200, level: 72, streak: 89 },
+                { position: 3, username: 'Jennifer Aniston', points: 6100, level: 61, streak: 45 }
             ]
         };
 

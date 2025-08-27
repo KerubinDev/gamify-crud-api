@@ -1,191 +1,133 @@
-# 🚀 Guia de Instalação - Sistema Vida Equilibrada
+# 🚀 FIT BATTLE - Guia de Instalação
 
 ## 📋 Pré-requisitos
 
-Antes de instalar o sistema, certifique-se de ter os seguintes componentes instalados:
+- **PHP**: 8.0 ou superior
+- **MySQL**: 8.0 ou superior
+- **Servidor Web**: Apache ou Nginx
+- **Extensões PHP**: PDO, PDO_MySQL, JSON
 
-- **PHP 7.4 ou superior**
-- **MySQL 5.7 ou superior** (ou MariaDB 10.2+)
-- **Servidor Web** (Apache/Nginx) ou **XAMPP/Laragon**
-- **Navegador moderno** (Chrome, Firefox, Safari, Edge)
+## ⚡ Instalação Rápida
 
-## 🛠️ Instalação
-
-### 1. Configuração do Banco de Dados
-
-1. **Crie um banco de dados MySQL:**
-   ```sql
-   CREATE DATABASE vida_equilibrada;
-   ```
-
-2. **Importe o esquema do banco:**
-   - Abra o arquivo `database/database.sql` no seu cliente MySQL
-   - Execute o script completo para criar todas as tabelas, views, procedures e triggers
-
-3. **Verifique se as tabelas foram criadas:**
-   ```sql
-   USE vida_equilibrada;
-   SHOW TABLES;
-   ```
-
-### 2. Configuração do Backend
-
-1. **Configure as credenciais do banco:**
-   - Abra o arquivo `api/config/database.php`
-   - Atualize as constantes de conexão:
-   ```php
-   define('DB_HOST', 'localhost');
-   define('DB_NAME', 'vida_equilibrada');
-   define('DB_USER', 'seu_usuario');
-   define('DB_PASS', 'sua_senha');
-   ```
-
-2. **Configure o servidor web:**
-   - **XAMPP:** Coloque a pasta do projeto em `htdocs/`
-   - **Laragon:** Coloque a pasta do projeto em `www/`
-   - **Apache/Nginx:** Configure o DocumentRoot para apontar para a pasta do projeto
-
-3. **Verifique as permissões:**
-   - Certifique-se de que o PHP tem permissão de escrita na pasta do projeto
-   - Configure as permissões adequadas para logs (se necessário)
-
-### 3. Configuração do Frontend
-
-1. **Acesse a aplicação:**
-   - Abra seu navegador
-   - Acesse: `http://localhost/gamify-crud-api/`
-
-2. **Verifique se a API está funcionando:**
-   - Acesse: `http://localhost/gamify-crud-api/api/`
-   - Você deve ver a documentação da API
-
-## 🔧 Configurações Avançadas
-
-### Configurações de Segurança
-
-1. **Altere a chave JWT:**
-   ```php
-   // Em api/config/database.php
-   define('JWT_SECRET', 'sua_chave_secreta_muito_segura_aqui');
-   ```
-
-2. **Configure HTTPS (recomendado para produção):**
-   - Instale um certificado SSL
-   - Configure redirecionamento HTTPS
-
-3. **Configure CORS (se necessário):**
-   ```php
-   // Em api/endpoints/index.php
-   header('Access-Control-Allow-Origin: https://seu-dominio.com');
-   ```
-
-### Configurações de Gamificação
-
-Você pode personalizar as regras de gamificação editando as constantes em `api/config/database.php`:
-
-```php
-// Pontos base por hábito completado
-define('PONTOS_BASE_HABITO', 10);
-
-// Bônus de streak
-define('BONUS_STREAK_3', 25);
-define('BONUS_STREAK_7', 50);
-define('BONUS_STREAK_30', 100);
-
-// Multiplicadores por horário
-define('MULTIPLICADOR_MADRUGADOR', 1.5);
-define('MULTIPLICADOR_NOITE', 1.2);
-
-// Pontos por nível
-define('PONTOS_POR_NIVEL', 100);
+### 1. **Baixar o Projeto**
+```bash
+git clone [URL_DO_REPOSITORIO]
+cd fit-battle
 ```
+
+### 2. **Configurar o Banco de Dados**
+- Acesse `install.php` no seu navegador
+- Configure as credenciais do banco
+- Clique em "Instalar FIT BATTLE"
+
+### 3. **Acessar a Aplicação**
+- Acesse `index.html` no seu navegador
+- Pronto! 🎉
+
+## 🔧 Instalação Manual
+
+### 1. **Configurar Banco de Dados**
+```sql
+-- Criar banco de dados
+CREATE DATABASE fit_battle CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Executar script SQL
+mysql -u root -p fit_battle < database/fit_battle.sql
+```
+
+### 2. **Configurar Conexão**
+Edite `api/config/database.php`:
+```php
+define('DB_HOST', 'localhost');
+define('DB_NAME', 'fit_battle');
+define('DB_USER', 'seu_usuario');
+define('DB_PASS', 'sua_senha');
+```
+
+### 3. **Configurar Servidor Web**
+- Apache: Habilitar mod_rewrite
+- Nginx: Configurar rewrite rules
 
 ## 🧪 Testando a Instalação
 
-### 1. Teste da API
+### **Credenciais de Teste**
+- **Email**: `admin@fitbattle.com`
+- **Senha**: `password`
 
-1. **Teste de saúde da API:**
-   ```
-   GET http://localhost/gamify-crud-api/api/health
-   ```
+### **Funcionalidades para Testar**
+1. ✅ Login/Registro
+2. ✅ Visualização do ranking
+3. ✅ Sistema de desafios
+4. ✅ Navegação entre seções
 
-2. **Teste de registro de usuário:**
-   ```json
-   POST http://localhost/gamify-crud-api/api/auth/register
-   {
-     "nome": "Usuário Teste",
-     "email": "teste@exemplo.com",
-     "password": "123456"
-   }
-   ```
+## 🚨 Solução de Problemas
 
-3. **Teste de login:**
-   ```json
-   POST http://localhost/gamify-crud-api/api/auth/login
-   {
-     "email": "teste@exemplo.com",
-     "password": "123456"
-   }
-   ```
+### **Erro de Conexão com Banco**
+- Verificar credenciais em `api/config/database.php`
+- Confirmar se MySQL está rodando
+- Verificar se o banco `fit_battle` existe
 
-### 2. Teste do Frontend
+### **Página em Branco**
+- Verificar logs de erro do PHP
+- Confirmar se todas as extensões estão habilitadas
+- Verificar permissões de arquivo
 
-1. **Acesse a aplicação web**
-2. **Crie uma conta de teste**
-3. **Faça login**
-4. **Teste as funcionalidades:**
-   - Criar hábitos
-   - Completar hábitos
-   - Ver ranking
-   - Ver conquistas
+### **CSS/JS não Carregando**
+- Verificar se o servidor web está configurado corretamente
+- Confirmar se os arquivos estão na pasta `assets/`
 
-## 🐛 Solução de Problemas
+## 📁 Estrutura de Arquivos
 
-### Problemas Comuns
+```
+fit-battle/
+├── api/                    # Backend PHP
+│   ├── config/            # Configurações
+│   ├── controllers/       # Controladores
+│   ├── models/            # Modelos
+│   └── endpoints/         # Endpoints da API
+├── assets/                # Frontend
+│   ├── css/              # Estilos
+│   ├── js/               # JavaScript
+│   └── images/           # Imagens
+├── database/              # Scripts SQL
+├── docs/                  # Documentação
+├── install.php            # Instalador automático
+└── index.html             # Página principal
+```
 
-1. **Erro de conexão com banco:**
-   - Verifique as credenciais em `api/config/database.php`
-   - Certifique-se de que o MySQL está rodando
-   - Verifique se o banco `vida_equilibrada` existe
+## 🔒 Configurações de Segurança
 
-2. **Erro 404 na API:**
-   - Verifique se o mod_rewrite está habilitado (Apache)
-   - Configure o .htaccess corretamente
-   - Verifique as permissões dos arquivos
+### **Produção**
+- Alterar `JWT_SECRET` em `api/config/database.php`
+- Configurar HTTPS
+- Definir permissões de arquivo adequadas
+- Configurar firewall
 
-3. **Erro de CORS:**
-   - Verifique se os headers CORS estão configurados
-   - Certifique-se de que está acessando pelo mesmo domínio
+### **Desenvolvimento**
+- Manter configurações padrão
+- Usar banco local
+- Habilitar exibição de erros
 
-4. **Erro de permissão:**
-   - Verifique as permissões dos arquivos e pastas
-   - Certifique-se de que o usuário do servidor web tem acesso
+## 🚀 Próximos Passos
 
-### Logs de Erro
+1. **Personalizar Design**
+   - Editar `assets/css/style.css`
+   - Modificar cores e estilos
 
-- **PHP:** Verifique o log de erros do PHP
-- **Apache/Nginx:** Verifique o log de erros do servidor web
-- **MySQL:** Verifique o log de erros do MySQL
+2. **Adicionar Funcionalidades**
+   - Implementar novos endpoints na API
+   - Criar novas páginas
 
-## 📚 Próximos Passos
+3. **Integração com Apps**
+   - Desenvolver app mobile
+   - Integrar com wearables
 
-Após a instalação bem-sucedida:
+## 📞 Suporte
 
-1. **Leia a documentação da API** em `docs/API.md`
-2. **Explore as funcionalidades** do sistema
-3. **Personalize o tema** e regras de gamificação
-4. **Configure backups** do banco de dados
-5. **Monitore o desempenho** da aplicação
-
-## 🆘 Suporte
-
-Se encontrar problemas durante a instalação:
-
-1. Verifique se todos os pré-requisitos estão atendidos
-2. Consulte a seção de solução de problemas
-3. Verifique os logs de erro
-4. Consulte a documentação completa do projeto
+- **Issues**: Abrir no repositório
+- **Documentação**: Ver pasta `docs/`
+- **Email**: [seu-email@exemplo.com]
 
 ---
 
-**Boa sorte em sua jornada de gamificação! 🎮✨**
+**🏃‍♂️💪 FIT BATTLE está pronto para dominar o mundo do fitness! ⚔️🏆**

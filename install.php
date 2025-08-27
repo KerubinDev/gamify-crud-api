@@ -1,338 +1,262 @@
 <?php
 /**
- * Script de Instalação Automática
- * Sistema Vida Equilibrada
+ * FIT BATTLE - Instalação Rápida
+ * Sistema de Competição Fitness
  */
 
-// Configurações de instalação
-$config = [
-    'db_host' => 'localhost',
-    'db_name' => 'vida_equilibrada',
-    'db_user' => 'root',
-    'db_pass' => '',
-    'app_url' => 'http://localhost/gamify-crud-api'
-];
-
 // Verificar se já foi instalado
-if (file_exists('installed.lock')) {
-    die('❌ Sistema já foi instalado! Para reinstalar, delete o arquivo installed.lock');
+if (file_exists('installed.txt')) {
+    die('FIT BATTLE já foi instalado! Para reinstalar, delete o arquivo installed.txt');
 }
 
+// Configurações padrão
+$db_host = 'localhost';
+$db_user = 'root';
+$db_pass = '';
+$db_name = 'fit_battle';
+
+// Processar formulário de instalação
+if ($_POST) {
+    $db_host = $_POST['db_host'] ?? $db_host;
+    $db_user = $_POST['db_user'] ?? $db_user;
+    $db_pass = $_POST['db_pass'] ?? $db_pass;
+    $db_name = $_POST['db_name'] ?? $db_name;
+    
+    try {
+        // Testar conexão
+        $pdo = new PDO("mysql:host=$db_host", $db_user, $db_pass);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Criar banco se não existir
+        $pdo->exec("CREATE DATABASE IF NOT EXISTS `$db_name` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+        $pdo->exec("USE `$db_name`");
+        
+        // Ler e executar script SQL
+        $sql = file_get_contents('database/fit_battle.sql');
+        $pdo->exec($sql);
+        
+        // Atualizar arquivo de configuração
+        $config_content = file_get_contents('api/config/database.php');
+        $config_content = str_replace("define('DB_HOST', 'localhost');", "define('DB_HOST', '$db_host');", $config_content);
+        $config_content = str_replace("define('DB_NAME', 'fit_battle');", "define('DB_NAME', '$db_name');", $config_content);
+        $config_content = str_replace("define('DB_USER', 'root');", "define('DB_USER', '$db_user');", $config_content);
+        $config_content = str_replace("define('DB_PASS', '');", "define('DB_PASS', '$db_pass');", $config_content);
+        
+        file_put_contents('api/config/database.php', $config_content);
+        
+        // Marcar como instalado
+        file_put_contents('installed.txt', date('Y-m-d H:i:s'));
+        
+        $success = "FIT BATTLE instalado com sucesso! 🎉";
+        
+    } catch (Exception $e) {
+        $error = "Erro na instalação: " . $e->getMessage();
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Instalação - Vida Equilibrada</title>
+    <title>FIT BATTLE - Instalação</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0;
-            padding: 20px;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
+        
         .container {
-            max-width: 800px;
-            margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
         }
-        .header {
+        
+        .logo {
             text-align: center;
             margin-bottom: 30px;
         }
-        .header h1 {
-            color: #667eea;
-            margin: 0;
-            font-size: 2.5rem;
-        }
-        .header p {
-            color: #666;
-            margin: 10px 0 0 0;
-        }
-        .step {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 5px solid #667eea;
-        }
-        .step h3 {
-            margin: 0 0 15px 0;
+        
+        .logo h1 {
+            font-size: 2.5em;
             color: #333;
+            margin-bottom: 10px;
         }
-        .step p {
-            margin: 5px 0;
+        
+        .logo .subtitle {
             color: #666;
+            font-size: 1.1em;
         }
-        .success {
-            color: #28a745;
-            font-weight: bold;
+        
+        .form-group {
+            margin-bottom: 20px;
         }
-        .error {
-            color: #dc3545;
-            font-weight: bold;
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
         }
-        .warning {
-            color: #ffc107;
-            font-weight: bold;
+        
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
         }
-        .info {
-            color: #17a2b8;
-            font-weight: bold;
+        
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
         }
+        
         .btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             padding: 15px 30px;
             border-radius: 10px;
-            font-size: 1.1rem;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            margin: 10px 5px;
-            transition: all 0.3s ease;
+            width: 100%;
+            transition: transform 0.3s;
         }
+        
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
         }
-        .form-group {
-            margin: 15px 0;
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .features {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e1e5e9;
+        }
+        
+        .features h3 {
             color: #333;
+            margin-bottom: 15px;
+            text-align: center;
         }
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+        
+        .feature-list {
+            list-style: none;
         }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
+        
+        .feature-list li {
+            padding: 8px 0;
+            color: #666;
+            display: flex;
+            align-items: center;
         }
-        .progress {
-            width: 100%;
-            height: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-            margin: 20px 0;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            transition: width 0.3s ease;
-        }
-        .log {
-            background: #1e1e1e;
-            color: #00ff00;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            max-height: 300px;
-            overflow-y: auto;
-            margin: 20px 0;
-        }
-        .hidden {
-            display: none;
+        
+        .feature-list li::before {
+            content: "✅";
+            margin-right: 10px;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🏆 Vida Equilibrada</h1>
-            <p>Instalação Automática do Sistema Gamificado</p>
+        <div class="logo">
+            <h1>🏃‍♂️💪 FIT BATTLE</h1>
+            <div class="subtitle">A Guerra pela Saúde</div>
         </div>
-
-        <div id="configForm">
-            <div class="step">
-                <h3>📋 Configuração do Banco de Dados</h3>
-                <p>Preencha as informações de conexão com o MySQL:</p>
-                
-                <form id="installForm">
-                    <div class="form-group">
-                        <label for="db_host">Host do Banco:</label>
-                        <input type="text" id="db_host" name="db_host" value="<?= $config['db_host'] ?>" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="db_name">Nome do Banco:</label>
-                        <input type="text" id="db_name" name="db_name" value="<?= $config['db_name'] ?>" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="db_user">Usuário:</label>
-                        <input type="text" id="db_user" name="db_user" value="<?= $config['db_user'] ?>" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="db_pass">Senha:</label>
-                        <input type="password" id="db_pass" name="db_pass" value="<?= $config['db_pass'] ?>">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="app_url">URL da Aplicação:</label>
-                        <input type="text" id="app_url" name="app_url" value="<?= $config['app_url'] ?>" required>
-                    </div>
-                    
-                    <button type="submit" class="btn">🚀 Iniciar Instalação</button>
-                </form>
+        
+        <?php if (isset($success)): ?>
+            <div class="alert alert-success">
+                <?php echo $success; ?>
             </div>
-        </div>
-
-        <div id="installation" class="hidden">
-            <div class="step">
-                <h3>⚙️ Instalação em Progresso</h3>
-                <div class="progress">
-                    <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+            <div class="features">
+                <h3>🎉 Instalação Concluída!</h3>
+                <p style="text-align: center; margin-bottom: 20px;">
+                    Seu FIT BATTLE está pronto para uso!
+                </p>
+                <a href="index.html" class="btn">🚀 Acessar Aplicação</a>
+            </div>
+        <?php elseif (isset($error)): ?>
+            <div class="alert alert-error">
+                <?php echo $error; ?>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (!isset($success)): ?>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="db_host">Host do Banco:</label>
+                    <input type="text" id="db_host" name="db_host" value="<?php echo htmlspecialchars($db_host); ?>" required>
                 </div>
-                <div class="log" id="installLog"></div>
+                
+                <div class="form-group">
+                    <label for="db_user">Usuário do Banco:</label>
+                    <input type="text" id="db_user" name="db_user" value="<?php echo htmlspecialchars($db_user); ?>" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="db_pass">Senha do Banco:</label>
+                    <input type="password" id="db_pass" name="db_pass" value="<?php echo htmlspecialchars($db_pass); ?>">
+                </div>
+                
+                <div class="form-group">
+                    <label for="db_name">Nome do Banco:</label>
+                    <input type="text" id="db_name" name="db_name" value="<?php echo htmlspecialchars($db_name); ?>" required>
+                </div>
+                
+                <button type="submit" class="btn">🚀 Instalar FIT BATTLE</button>
+            </form>
+            
+            <div class="features">
+                <h3>✨ O que será instalado:</h3>
+                <ul class="feature-list">
+                    <li>Banco de dados completo com todas as tabelas</li>
+                    <li>Sistema de usuários e autenticação</li>
+                    <li>Sistema de exercícios e categorias</li>
+                    <li>Sistema de pontuação e ranking</li>
+                    <li>Sistema de badges e conquistas</li>
+                    <li>Sistema de desafios e competições</li>
+                    <li>Stored procedures e triggers</li>
+                    <li>Views para consultas otimizadas</li>
+                </ul>
             </div>
-        </div>
-
-        <div id="success" class="hidden">
-            <div class="step">
-                <h3>✅ Instalação Concluída!</h3>
-                <p class="success">O sistema foi instalado com sucesso!</p>
-                <p>Você pode agora acessar a aplicação:</p>
-                <a href="index.html" class="btn">🎮 Acessar Sistema</a>
-                <button onclick="showConfig()" class="btn">⚙️ Ver Configurações</button>
-            </div>
-        </div>
-
-        <div id="error" class="hidden">
-            <div class="step">
-                <h3>❌ Erro na Instalação</h3>
-                <p class="error" id="errorMessage"></p>
-                <button onclick="retryInstallation()" class="btn">🔄 Tentar Novamente</button>
-            </div>
-        </div>
+        <?php endif; ?>
     </div>
-
-    <script>
-        let currentStep = 0;
-        const totalSteps = 6;
-
-        document.getElementById('installForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            startInstallation();
-        });
-
-        function startInstallation() {
-            const formData = new FormData(document.getElementById('installForm'));
-            const config = Object.fromEntries(formData.entries());
-
-            document.getElementById('configForm').classList.add('hidden');
-            document.getElementById('installation').classList.remove('hidden');
-
-            installStep(config, 0);
-        }
-
-        function installStep(config, step) {
-            const steps = [
-                { name: 'Verificando conexão com MySQL...', action: 'test_connection' },
-                { name: 'Criando banco de dados...', action: 'create_database' },
-                { name: 'Importando esquema...', action: 'import_schema' },
-                { name: 'Configurando aplicação...', action: 'configure_app' },
-                { name: 'Testando funcionalidades...', action: 'test_features' },
-                { name: 'Finalizando instalação...', action: 'finalize' }
-            ];
-
-            if (step >= steps.length) {
-                completeInstallation();
-                return;
-            }
-
-            const currentStepInfo = steps[step];
-            log(currentStepInfo.name);
-
-            // Simular progresso
-            const progress = ((step + 1) / totalSteps) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-
-            // Fazer requisição para o backend
-            fetch('install_backend.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    step: step,
-                    action: currentStepInfo.action,
-                    config: config
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    log('✅ ' + currentStepInfo.name + ' - Concluído!', 'success');
-                    setTimeout(() => installStep(config, step + 1), 1000);
-                } else {
-                    log('❌ ' + currentStepInfo.name + ' - Erro: ' + data.message, 'error');
-                    showError(data.message);
-                }
-            })
-            .catch(error => {
-                log('❌ Erro na requisição: ' + error.message, 'error');
-                showError('Erro de conexão: ' + error.message);
-            });
-        }
-
-        function log(message, type = 'info') {
-            const logElement = document.getElementById('installLog');
-            const timestamp = new Date().toLocaleTimeString();
-            const logEntry = document.createElement('div');
-            logEntry.innerHTML = `[${timestamp}] ${message}`;
-            
-            if (type === 'success') {
-                logEntry.style.color = '#28a745';
-            } else if (type === 'error') {
-                logEntry.style.color = '#dc3545';
-            } else if (type === 'warning') {
-                logEntry.style.color = '#ffc107';
-            }
-            
-            logElement.appendChild(logEntry);
-            logElement.scrollTop = logElement.scrollHeight;
-        }
-
-        function completeInstallation() {
-            document.getElementById('installation').classList.add('hidden');
-            document.getElementById('success').classList.remove('hidden');
-        }
-
-        function showError(message) {
-            document.getElementById('installation').classList.add('hidden');
-            document.getElementById('errorMessage').textContent = message;
-            document.getElementById('error').classList.remove('hidden');
-        }
-
-        function retryInstallation() {
-            document.getElementById('error').classList.add('hidden');
-            document.getElementById('configForm').classList.remove('hidden');
-        }
-
-        function showConfig() {
-            alert('Configurações salvas em: api/config/database.php');
-        }
-    </script>
 </body>
 </html>
-

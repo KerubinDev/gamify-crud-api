@@ -1,573 +1,612 @@
 /**
- * App Principal - Sistema Vida Equilibrada
- * Funcionalidades básicas da aplicação
+ * FIT BATTLE - JavaScript Principal
+ * Sistema de Competição Fitness
  */
 
-// Configurações da API
-const API_BASE_URL = '/gamify-crud-api/api';
-const API_ENDPOINTS = {
-    auth: '/auth',
-    usuarios: '/usuarios',
-    habitos: '/habitos',
-    conquistas: '/conquistas',
-    ranking: '/ranking',
-    estatisticas: '/estatisticas'
-};
+class FitBattleApp {
+    constructor() {
+        this.currentUser = null;
+        this.isAuthenticated = false;
+        this.init();
+    }
 
-// Estado global da aplicação
-let currentUser = null;
-let isAuthenticated = false;
+    init() {
+        this.setupEventListeners();
+        this.setupNavigation();
+        this.loadMockData();
+        this.animateOnScroll();
+    }
 
-// Inicialização da aplicação
-document.addEventListener('DOMContentLoaded', function() {
-    initializeApp();
-});
-
-/**
- * Inicializa a aplicação
- */
-function initializeApp() {
-    setupNavigation();
-    setupAuthTabs();
-    setupModalHandlers();
-    checkAuthentication();
-    setupFormHandlers();
-}
-
-/**
- * Configura a navegação entre seções
- */
-function setupNavigation() {
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Remove active class de todos os links
-            navLinks.forEach(l => l.classList.remove('active'));
-            
-            // Adiciona active class ao link clicado
-            this.classList.add('active');
-            
-            // Mostra a seção correspondente
-            const sectionId = this.getAttribute('data-section');
-            showSection(sectionId);
-        });
-    });
-}
-
-/**
- * Mostra uma seção específica
- */
-function showSection(sectionId) {
-    // Esconde todas as seções
-    const sections = document.querySelectorAll('.section');
-    sections.forEach(section => section.classList.remove('active'));
-    
-    // Mostra a seção selecionada
-    const targetSection = document.getElementById(sectionId);
-    if (targetSection) {
-        targetSection.classList.add('active');
+    setupEventListeners() {
+        // Botões de autenticação
+        document.getElementById('loginBtn')?.addEventListener('click', () => this.showModal('loginModal'));
+        document.getElementById('registerBtn')?.addEventListener('click', () => this.showModal('registerModal'));
         
-        // Carrega dados específicos da seção
-        loadSectionData(sectionId);
-    }
-}
-
-/**
- * Carrega dados específicos de cada seção
- */
-function loadSectionData(sectionId) {
-    if (!isAuthenticated) return;
-    
-    switch (sectionId) {
-        case 'dashboard':
-            loadDashboardData();
-            break;
-        case 'habitos':
-            loadHabitsData();
-            break;
-        case 'ranking':
-            loadRankingData();
-            break;
-        case 'conquistas':
-            loadBadgesData();
-            break;
-        case 'perfil':
-            loadProfileData();
-            break;
-    }
-}
-
-/**
- * Configura as abas de autenticação
- */
-function setupAuthTabs() {
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const authForms = document.querySelectorAll('.auth-form');
-    
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            
-            // Remove active class de todos os botões e formulários
-            tabBtns.forEach(b => b.classList.remove('active'));
-            authForms.forEach(f => f.classList.remove('active'));
-            
-            // Adiciona active class ao botão clicado
-            this.classList.add('active');
-            
-            // Mostra o formulário correspondente
-            const targetForm = document.getElementById(tabName + 'Form');
-            if (targetForm) {
-                targetForm.classList.add('active');
+        // Botões de ação
+        document.getElementById('startBattleBtn')?.addEventListener('click', () => this.startBattle());
+        document.getElementById('learnMoreBtn')?.addEventListener('click', () => this.scrollToSection('features'));
+        document.getElementById('joinNowBtn')?.addEventListener('click', () => this.showModal('registerModal'));
+        
+        // Botões de ranking
+        document.getElementById('viewFullRankingBtn')?.addEventListener('click', () => this.viewFullRanking());
+        
+        // Botões de desafios
+        document.getElementById('createChallengeBtn')?.addEventListener('click', () => this.createChallenge());
+        document.getElementById('viewAllChallengesBtn')?.addEventListener('click', () => this.viewAllChallenges());
+        
+        // Fechar modais
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', (e) => this.closeModal(e.target.closest('.modal')));
+        });
+        
+        // Fechar modal ao clicar fora
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) {
+                this.closeModal(e.target);
             }
         });
-    });
-}
+        
+        // Formulários
+        document.getElementById('loginForm')?.addEventListener('submit', (e) => this.handleLogin(e));
+        document.getElementById('registerForm')?.addEventListener('submit', (e) => this.handleRegister(e));
+        
+        // Tabs de ranking
+        document.querySelectorAll('.tab-btn').forEach(tab => {
+            tab.addEventListener('click', (e) => this.switchRankingTab(e.target));
+        });
+        
+        // Categorias de exercícios
+        document.querySelectorAll('.category-card').forEach(card => {
+            card.addEventListener('click', (e) => this.selectCategory(e.currentTarget));
+        });
+    }
 
-/**
- * Configura handlers dos modais
- */
-function setupModalHandlers() {
-    // Fechar modais ao clicar fora
-    window.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            closeModal(e.target.id);
+    setupNavigation() {
+        // Navegação suave
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navegação ativa
+        window.addEventListener('scroll', () => {
+            this.updateActiveNavigation();
+        });
+    }
+
+    updateActiveNavigation() {
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+        
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.clientHeight;
+            if (window.pageYOffset >= sectionTop - 200) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${current}`) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
-    });
-    
-    // Fechar modais com ESC
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const openModal = document.querySelector('.modal.active');
-            if (openModal) {
-                closeModal(openModal.id);
+    }
+
+    closeModal(modal) {
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    }
+
+    async handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        try {
+            // Simular login
+            await this.simulateLogin(email, password);
+            this.closeModal(document.getElementById('loginModal'));
+            this.showNotification('🔑 Login realizado com sucesso!', 'success');
+            this.updateUIAfterAuth();
+        } catch (error) {
+            this.showNotification('❌ Erro no login: ' + error.message, 'error');
+        }
+    }
+
+    async handleRegister(e) {
+        e.preventDefault();
+        const username = document.getElementById('registerUsername').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const fullName = document.getElementById('registerFullName').value;
+
+        try {
+            // Simular registro
+            await this.simulateRegister({ username, email, password, fullName });
+            this.closeModal(document.getElementById('registerModal'));
+            this.showNotification('🚀 Cadastro realizado com sucesso!', 'success');
+            this.updateUIAfterAuth();
+        } catch (error) {
+            this.showNotification('❌ Erro no cadastro: ' + error.message, 'error');
+        }
+    }
+
+    async simulateLogin(email, password) {
+        // Simular delay de API
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (email === 'admin@fitbattle.com' && password === 'password') {
+            this.currentUser = {
+                id: 1,
+                username: 'admin',
+                email: email,
+                fullName: 'Administrador',
+                totalPoints: 2500,
+                currentLevel: 25,
+                currentStreak: 7
+            };
+            this.isAuthenticated = true;
+            localStorage.setItem('fitBattleUser', JSON.stringify(this.currentUser));
+        } else {
+            throw new Error('Credenciais inválidas');
+        }
+    }
+
+    async simulateRegister(userData) {
+        // Simular delay de API
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        this.currentUser = {
+            id: Date.now(),
+            username: userData.username,
+            email: userData.email,
+            fullName: userData.fullName,
+            totalPoints: 0,
+            currentLevel: 1,
+            currentStreak: 0
+        };
+        this.isAuthenticated = true;
+        localStorage.setItem('fitBattleUser', JSON.stringify(this.currentUser));
+    }
+
+    updateUIAfterAuth() {
+        if (this.isAuthenticated && this.currentUser) {
+            // Atualizar botões de autenticação
+            const authContainer = document.querySelector('.nav-auth');
+            if (authContainer) {
+                authContainer.innerHTML = `
+                    <span class="user-welcome">👋 Olá, ${this.currentUser.username}!</span>
+                    <button class="btn btn-outline" onclick="app.logout()">🚪 Sair</button>
+                `;
+            }
+            
+            // Atualizar estatísticas do usuário
+            this.updateUserStats();
+        }
+    }
+
+    updateUserStats() {
+        if (this.currentUser) {
+            // Atualizar estatísticas na página
+            const statCards = document.querySelectorAll('.stat-card');
+            if (statCards.length >= 3) {
+                statCards[0].querySelector('.stat-value').textContent = this.currentUser.totalPoints + '+';
+                statCards[1].querySelector('.stat-value').textContent = this.currentUser.currentLevel;
+                statCards[2].querySelector('.stat-value').textContent = this.currentUser.currentStreak;
             }
         }
-    });
-}
+    }
 
-/**
- * Configura handlers dos formulários
- */
-function setupFormHandlers() {
-    // Formulário de login
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
+    logout() {
+        this.currentUser = null;
+        this.isAuthenticated = false;
+        localStorage.removeItem('fitBattleUser');
+        location.reload();
     }
-    
-    // Formulário de registro
-    const registerForm = document.getElementById('registerForm');
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
-    }
-    
-    // Formulário de criação de hábito
-    const createHabitForm = document.getElementById('createHabitForm');
-    if (createHabitForm) {
-        createHabitForm.addEventListener('submit', handleCreateHabit);
-    }
-    
-    // Formulário de edição de perfil
-    const editProfileForm = document.getElementById('editProfileForm');
-    if (editProfileForm) {
-        editProfileForm.addEventListener('submit', handleEditProfile);
-    }
-}
 
-/**
- * Verifica se o usuário está autenticado
- */
-function checkAuthentication() {
-    const token = localStorage.getItem('authToken');
-    const userData = localStorage.getItem('userData');
-    
-    if (token && userData) {
-        try {
-            currentUser = JSON.parse(userData);
-            isAuthenticated = true;
-            showAuthenticatedUI();
-            loadDashboardData();
-        } catch (error) {
-            console.error('Erro ao carregar dados do usuário:', error);
-            logout();
+    startBattle() {
+        if (this.isAuthenticated) {
+            this.showNotification('⚔️ Batalha iniciada! Prepare-se para dominar o ranking!', 'success');
+            this.scrollToSection('ranking');
+        } else {
+            this.showModal('registerModal');
         }
-    } else {
-        showAuthModal();
     }
-}
 
-/**
- * Mostra a interface para usuários autenticados
- */
-function showAuthenticatedUI() {
-    // Esconde modal de autenticação
-    const authModal = document.getElementById('authModal');
-    if (authModal) {
-        authModal.style.display = 'none';
-    }
-    
-    // Mostra informações do usuário
-    const userInfo = document.getElementById('userInfo');
-    if (userInfo) {
-        userInfo.style.display = 'flex';
-    }
-    
-    // Atualiza dados do usuário no header
-    updateUserInfo();
-}
-
-/**
- * Mostra o modal de autenticação
- */
-function showAuthModal() {
-    const authModal = document.getElementById('authModal');
-    if (authModal) {
-        authModal.style.display = 'flex';
-        authModal.classList.add('active');
-    }
-}
-
-/**
- * Atualiza informações do usuário no header
- */
-function updateUserInfo() {
-    if (!currentUser) return;
-    
-    const userName = document.getElementById('userName');
-    const userLevel = document.getElementById('userLevel');
-    
-    if (userName) {
-        userName.textContent = currentUser.nome;
-    }
-    
-    if (userLevel) {
-        const level = Math.floor(currentUser.pontos / 100) + 1;
-        userLevel.textContent = `Nível ${level}`;
-    }
-}
-
-/**
- * Função de logout
- */
-function logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    currentUser = null;
-    isAuthenticated = false;
-    
-    // Esconde informações do usuário
-    const userInfo = document.getElementById('userInfo');
-    if (userInfo) {
-        userInfo.style.display = 'none';
-    }
-    
-    // Mostra modal de autenticação
-    showAuthModal();
-    
-    // Limpa dados das seções
-    clearAllSections();
-    
-    showNotification('Logout realizado com sucesso!', 'success');
-}
-
-/**
- * Limpa dados de todas as seções
- */
-function clearAllSections() {
-    const sections = ['dashboard', 'habitos', 'ranking', 'conquistas', 'perfil'];
-    
-    sections.forEach(sectionId => {
+    scrollToSection(sectionId) {
         const section = document.getElementById(sectionId);
         if (section) {
-            const loadingElements = section.querySelectorAll('.loading');
-            loadingElements.forEach(el => {
-                el.textContent = 'Faça login para ver os dados';
+            section.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
             });
         }
-    });
-}
+    }
 
-/**
- * Funções de modal
- */
-function showCreateHabitModal() {
-    const modal = document.getElementById('createHabitModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        modal.classList.add('active');
+    switchRankingTab(clickedTab) {
+        // Remover classe ativa de todas as tabs
+        document.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+        
+        // Adicionar classe ativa na tab clicada
+        clickedTab.classList.add('active');
+        
+        // Carregar dados do ranking baseado na tab
+        const tabType = clickedTab.dataset.tab;
+        this.loadRankingData(tabType);
+    }
+
+    loadRankingData(tabType) {
+        const rankingList = document.getElementById('rankingList');
+        if (!rankingList) return;
+
+        // Simular dados de ranking
+        const mockRankings = {
+            global: [
+                { position: 1, username: 'FitnessKing', points: 15420, level: 154, streak: 45 },
+                { position: 2, username: 'IronWoman', points: 12850, level: 128, streak: 32 },
+                { position: 3, username: 'SpeedRunner', points: 11200, level: 112, streak: 28 },
+                { position: 4, username: 'YogaMaster', points: 9850, level: 98, streak: 67 },
+                { position: 5, username: 'CrossFitPro', points: 8750, level: 87, streak: 23 }
+            ],
+            running: [
+                { position: 1, username: 'SpeedRunner', points: 11200, level: 112, streak: 28 },
+                { position: 2, username: 'MarathonMan', points: 8900, level: 89, streak: 15 },
+                { position: 3, username: 'TrailBlazer', points: 7650, level: 76, streak: 42 }
+            ],
+            gym: [
+                { position: 1, username: 'IronWoman', points: 12850, level: 128, streak: 32 },
+                { position: 2, username: 'MuscleBuilder', points: 10200, level: 102, streak: 18 },
+                { position: 3, username: 'PowerLifter', points: 8900, level: 89, streak: 25 }
+            ],
+            yoga: [
+                { position: 1, username: 'YogaMaster', points: 9850, level: 98, streak: 67 },
+                { position: 2, username: 'ZenSeeker', points: 7200, level: 72, streak: 89 },
+                { position: 3, username: 'MindfulOne', points: 6100, level: 61, streak: 45 }
+            ]
+        };
+
+        const rankingData = mockRankings[tabType] || mockRankings.global;
+        this.renderRanking(rankingList, rankingData);
+    }
+
+    renderRanking(container, rankingData) {
+        container.innerHTML = rankingData.map(user => `
+            <div class="ranking-item">
+                <div class="ranking-position">#${user.position}</div>
+                <div class="ranking-user">
+                    <div class="user-avatar">👤</div>
+                    <div class="user-info">
+                        <div class="username">${user.username}</div>
+                        <div class="user-stats">
+                            <span class="level">Nível ${user.level}</span>
+                            <span class="streak">🔥 ${user.streak} dias</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="ranking-points">${user.points.toLocaleString()} pts</div>
+            </div>
+        `).join('');
+    }
+
+    selectCategory(card) {
+        const category = card.dataset.category;
+        this.showNotification(`💪 Categoria selecionada: ${card.querySelector('h3').textContent}`, 'info');
+        
+        // Adicionar efeito visual
+        card.style.transform = 'scale(1.05)';
+        setTimeout(() => {
+            card.style.transform = 'scale(1)';
+        }, 200);
+    }
+
+    viewFullRanking() {
+        this.showNotification('📊 Redirecionando para o ranking completo...', 'info');
+        // Aqui você pode redirecionar para uma página de ranking completa
+    }
+
+    createChallenge() {
+        if (this.isAuthenticated) {
+            this.showNotification('⚔️ Redirecionando para criação de desafio...', 'info');
+        } else {
+            this.showModal('registerModal');
+        }
+    }
+
+    viewAllChallenges() {
+        this.showNotification('📋 Redirecionando para todos os desafios...', 'info');
+    }
+
+    loadMockData() {
+        // Carregar dados iniciais
+        this.loadRankingData('global');
+        this.loadChallengesData();
+        
+        // Verificar se há usuário logado
+        const savedUser = localStorage.getItem('fitBattleUser');
+        if (savedUser) {
+            this.currentUser = JSON.parse(savedUser);
+            this.isAuthenticated = true;
+            this.updateUIAfterAuth();
+        }
+    }
+
+    loadChallengesData() {
+        const challengesGrid = document.getElementById('challengesGrid');
+        if (!challengesGrid) return;
+
+        const mockChallenges = [
+            {
+                title: '🏃‍♂️ Desafio da Semana',
+                description: 'Corra 21km em 7 dias',
+                participants: 45,
+                prize: '500 pontos',
+                timeLeft: '3 dias'
+            },
+            {
+                title: '💪 Academia Intensa',
+                description: 'Complete 100 séries em 30 dias',
+                participants: 23,
+                prize: '300 pontos',
+                timeLeft: '15 dias'
+            },
+            {
+                title: '🧘‍♀️ Yoga Challenge',
+                description: '30 dias de yoga consecutivos',
+                participants: 67,
+                prize: '400 pontos',
+                timeLeft: '8 dias'
+            }
+        ];
+
+        challengesGrid.innerHTML = mockChallenges.map(challenge => `
+            <div class="challenge-card">
+                <div class="challenge-header">
+                    <h3>${challenge.title}</h3>
+                    <span class="challenge-prize">🏆 ${challenge.prize}</span>
+                </div>
+                <p class="challenge-description">${challenge.description}</p>
+                <div class="challenge-footer">
+                    <span class="participants">👥 ${challenge.participants} participantes</span>
+                    <span class="time-left">⏰ ${challenge.timeLeft}</span>
+                </div>
+                <button class="btn btn-primary btn-small">⚔️ Participar</button>
+            </div>
+        `).join('');
+    }
+
+    animateOnScroll() {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observar elementos para animação
+        document.querySelectorAll('.feature-card, .step, .category-card, .challenge-card').forEach(el => {
+            observer.observe(el);
+        });
+    }
+
+    showNotification(message, type = 'info') {
+        // Criar notificação
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-message">${message}</span>
+                <button class="notification-close">&times;</button>
+            </div>
+        `;
+
+        // Adicionar estilos
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-out;
+            max-width: 400px;
+        `;
+
+        // Adicionar ao DOM
+        document.body.appendChild(notification);
+
+        // Animar entrada
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+
+        // Configurar fechamento
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        });
+
+        // Auto-remover após 5 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 5000);
     }
 }
 
-function showEditProfileModal() {
-    const modal = document.getElementById('editProfileModal');
-    if (modal && currentUser) {
-        // Preenche formulário com dados atuais
-        const editName = document.getElementById('editName');
-        const editEmail = document.getElementById('editEmail');
-        
-        if (editName) editName.value = currentUser.nome;
-        if (editEmail) editEmail.value = currentUser.email;
-        
-        modal.style.display = 'flex';
-        modal.classList.add('active');
-    }
-}
+// Inicializar aplicação quando DOM estiver pronto
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new FitBattleApp();
+});
 
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('active');
-        
-        // Limpa formulários
-        const forms = modal.querySelectorAll('form');
-        forms.forEach(form => form.reset());
-    }
-}
-
-/**
- * Sistema de notificações
- */
-function showNotification(message, type = 'info', duration = 5000) {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
-    
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.textContent = message;
-    
-    container.appendChild(notification);
-    
-    // Remove a notificação após o tempo especificado
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-        }
-    }, duration);
-}
-
-/**
- * Funções de requisição HTTP
- */
-async function apiRequest(endpoint, options = {}) {
-    const token = localStorage.getItem('authToken');
-    
-    const defaultOptions = {
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token && { 'Authorization': `Bearer ${token}` })
-        }
-    };
-    
-    const config = {
-        ...defaultOptions,
-        ...options,
-        headers: {
-            ...defaultOptions.headers,
-            ...options.headers
-        }
-    };
-    
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.message || 'Erro na requisição');
-        }
-        
-        return data;
-    } catch (error) {
-        console.error('Erro na API:', error);
-        throw error;
-    }
-}
-
-/**
- * Funções de carregamento de dados das seções
- */
-function loadDashboardData() {
-    if (!isAuthenticated) return;
-    
-    // Carrega estatísticas do usuário
-    loadUserStats();
-    
-    // Carrega hábitos de hoje
-    loadTodayHabits();
-    
-    // Carrega top ranking
-    loadTopRanking();
-    
-    // Carrega conquistas recentes
-    loadRecentBadges();
-}
-
-function loadUserStats() {
-    // Atualiza cards de estatísticas
-    const userPoints = document.getElementById('userPoints');
-    const userStreak = document.getElementById('userStreak');
-    const userLevel = document.getElementById('userLevel');
-    const userBadges = document.getElementById('userBadges');
-    const levelProgress = document.getElementById('levelProgress');
-    const levelProgressText = document.getElementById('levelProgressText');
-    
-    if (currentUser) {
-        if (userPoints) userPoints.textContent = currentUser.pontos || 0;
-        if (userStreak) userStreak.textContent = currentUser.streak_atual || 0;
-        
-        const level = Math.floor((currentUser.pontos || 0) / 100) + 1;
-        if (userLevel) userLevel.textContent = level;
-        
-        // Progresso do nível
-        const progress = ((currentUser.pontos || 0) % 100);
-        if (levelProgress) {
-            levelProgress.style.width = `${progress}%`;
-        }
-        if (levelProgressText) {
-            levelProgressText.textContent = `${progress} / 100 pontos para o próximo nível`;
-        }
-    }
-}
-
-function loadTodayHabits() {
-    const todayHabits = document.getElementById('todayHabits');
-    if (!todayHabits) return;
-    
-    todayHabits.innerHTML = '<p class="loading">Carregando hábitos...</p>';
-    
-    // Implementar carregamento de hábitos de hoje
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        todayHabits.innerHTML = '<p>Nenhum hábito para hoje</p>';
-    }, 1000);
-}
-
-function loadTopRanking() {
-    const topRanking = document.getElementById('topRanking');
-    if (!topRanking) return;
-    
-    topRanking.innerHTML = '<p class="loading">Carregando ranking...</p>';
-    
-    // Implementar carregamento do top ranking
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        topRanking.innerHTML = '<p>Ranking em desenvolvimento</p>';
-    }, 1000);
-}
-
-function loadRecentBadges() {
-    const recentBadges = document.getElementById('recentBadges');
-    if (!recentBadges) return;
-    
-    recentBadges.innerHTML = '<p class="loading">Carregando conquistas...</p>';
-    
-    // Implementar carregamento de conquistas recentes
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        recentBadges.innerHTML = '<p>Nenhuma conquista recente</p>';
-    }, 1000);
-}
-
-function loadHabitsData() {
-    const habitsList = document.getElementById('habitsList');
-    if (!habitsList) return;
-    
-    habitsList.innerHTML = '<p class="loading">Carregando hábitos...</p>';
-    
-    // Implementar carregamento de hábitos
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        habitsList.innerHTML = '<p>Nenhum hábito encontrado</p>';
-    }, 1000);
-}
-
-function loadRankingData() {
-    const rankingList = document.getElementById('rankingList');
-    if (!rankingList) return;
-    
-    rankingList.innerHTML = '<p class="loading">Carregando ranking...</p>';
-    
-    // Implementar carregamento do ranking
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        rankingList.innerHTML = '<p>Ranking em desenvolvimento</p>';
-    }, 1000);
-}
-
-function loadBadgesData() {
-    const badgesList = document.getElementById('badgesList');
-    if (!badgesList) return;
-    
-    badgesList.innerHTML = '<p class="loading">Carregando conquistas...</p>';
-    
-    // Implementar carregamento de badges
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        badgesList.innerHTML = '<p>Conquistas em desenvolvimento</p>';
-    }, 1000);
-}
-
-function loadProfileData() {
-    const profileStats = document.getElementById('profileStats');
-    const activityHistory = document.getElementById('activityHistory');
-    
-    if (profileStats) {
-        profileStats.innerHTML = '<p class="loading">Carregando estatísticas...</p>';
+// Adicionar estilos para notificações
+const notificationStyles = document.createElement('style');
+notificationStyles.textContent = `
+    .notification-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }
     
-    if (activityHistory) {
-        activityHistory.innerHTML = '<p class="loading">Carregando histórico...</p>';
+    .notification-close {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
     }
     
-    // Implementar carregamento de dados do perfil
-    // Por enquanto, mostra mensagem de placeholder
-    setTimeout(() => {
-        if (profileStats) {
-            profileStats.innerHTML = '<p>Estatísticas em desenvolvimento</p>';
-        }
-        if (activityHistory) {
-            activityHistory.innerHTML = '<p>Histórico em desenvolvimento</p>';
-        }
-    }, 1000);
-}
-
-/**
- * Handlers de formulários (serão implementados nos arquivos específicos)
- */
-function handleLogin(e) {
-    e.preventDefault();
-    // Implementado em auth.js
-}
-
-function handleRegister(e) {
-    e.preventDefault();
-    // Implementado em auth.js
-}
-
-function handleCreateHabit(e) {
-    e.preventDefault();
-    // Implementado em habits.js
-}
-
-function handleEditProfile(e) {
-    e.preventDefault();
-    // Implementado em profile.js
-}
-
-// Exporta funções para uso em outros módulos
-window.app = {
-    API_BASE_URL,
-    API_ENDPOINTS,
-    currentUser,
-    isAuthenticated,
-    showNotification,
-    apiRequest,
-    showSection,
-    loadSectionData,
-    logout,
-    closeModal
-};
+    .notification-close:hover {
+        opacity: 0.8;
+    }
+    
+    .ranking-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .ranking-item:hover {
+        transform: translateY(-2px);
+    }
+    
+    .ranking-position {
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #667eea;
+        min-width: 60px;
+    }
+    
+    .ranking-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+    
+    .user-avatar {
+        font-size: 2rem;
+    }
+    
+    .username {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .user-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .ranking-points {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #28a745;
+    }
+    
+    .challenge-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    
+    .challenge-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .challenge-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .challenge-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #333;
+    }
+    
+    .challenge-prize {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .challenge-description {
+        color: #6c757d;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+    
+    .challenge-footer {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    
+    .btn-small {
+        padding: 8px 16px;
+        font-size: 14px;
+        min-height: 36px;
+    }
+    
+    .user-welcome {
+        color: #667eea;
+        font-weight: 600;
+        margin-right: 1rem;
+    }
+`;
+document.head.appendChild(notificationStyles);

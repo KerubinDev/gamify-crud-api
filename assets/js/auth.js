@@ -1,399 +1,643 @@
 /**
- * Autenticação - Sistema Vida Equilibrada
- * Gerencia login, registro e autenticação de usuários
+ * FIT BATTLE - Autenticação
+ * Sistema de Login e Registro
  */
 
-// Sobrescreve os handlers de formulário do app.js
-document.addEventListener('DOMContentLoaded', function() {
-    setupAuthHandlers();
+class AuthManager {
+    constructor() {
+        this.token = localStorage.getItem('fitBattleToken');
+        this.user = JSON.parse(localStorage.getItem('fitBattleUser') || 'null');
+        this.init();
+    }
+
+    init() {
+        this.setupAuthForms();
+        this.checkAuthStatus();
+    }
+
+    setupAuthForms() {
+        // Formulário de login
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
+        }
+
+        // Formulário de registro
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
+        }
+
+        // Validação em tempo real
+        this.setupRealTimeValidation();
+    }
+
+    setupRealTimeValidation() {
+        // Validação de email
+        const emailInputs = document.querySelectorAll('input[type="email"]');
+        emailInputs.forEach(input => {
+            input.addEventListener('blur', () => this.validateEmail(input));
+            input.addEventListener('input', () => this.clearValidation(input));
+        });
+
+        // Validação de senha
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach(input => {
+            input.addEventListener('blur', () => this.validatePassword(input));
+            input.addEventListener('input', () => this.clearValidation(input));
+        });
+
+        // Validação de username
+        const usernameInputs = document.querySelectorAll('input[name*="username"], input[id*="username"]');
+        usernameInputs.forEach(input => {
+            input.addEventListener('blur', () => this.validateUsername(input));
+            input.addEventListener('input', () => this.clearValidation(input));
+        });
+    }
+
+    validateEmail(input) {
+        const email = input.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!email) {
+            this.showFieldError(input, 'Email é obrigatório');
+            return false;
+        }
+        
+        if (!emailRegex.test(email)) {
+            this.showFieldError(input, 'Email inválido');
+            return false;
+        }
+        
+        this.showFieldSuccess(input);
+        return true;
+    }
+
+    validatePassword(input) {
+        const password = input.value;
+        
+        if (!password) {
+            this.showFieldError(input, 'Senha é obrigatória');
+            return false;
+        }
+        
+        if (password.length < 6) {
+            this.showFieldError(input, 'Senha deve ter pelo menos 6 caracteres');
+            return false;
+        }
+        
+        this.showFieldSuccess(input);
+        return true;
+    }
+
+    validateUsername(input) {
+        const username = input.value.trim();
+        
+        if (!username) {
+            this.showFieldError(input, 'Nome de usuário é obrigatório');
+            return false;
+        }
+        
+        if (username.length < 3) {
+            this.showFieldError(input, 'Nome de usuário deve ter pelo menos 3 caracteres');
+            return false;
+        }
+        
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            this.showFieldError(input, 'Nome de usuário deve conter apenas letras, números e underscore');
+            return false;
+        }
+        
+        this.showFieldSuccess(input);
+        return true;
+    }
+
+    showFieldError(input, message) {
+        this.clearFieldStatus(input);
+        input.classList.add('error');
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'field-error';
+        errorDiv.textContent = message;
+        errorDiv.style.cssText = `
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        `;
+        
+        input.parentNode.appendChild(errorDiv);
+    }
+
+    showFieldSuccess(input) {
+        this.clearFieldStatus(input);
+        input.classList.add('success');
+        
+        const successDiv = document.createElement('div');
+        successDiv.className = 'field-success';
+        successDiv.innerHTML = '✅';
+        successDiv.style.cssText = `
+            color: #28a745;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+            display: block;
+        `;
+        
+        input.parentNode.appendChild(successDiv);
+    }
+
+    clearFieldStatus(input) {
+        input.classList.remove('error', 'success');
+        const existingError = input.parentNode.querySelector('.field-error');
+        const existingSuccess = input.parentNode.querySelector('.field-success');
+        
+        if (existingError) existingError.remove();
+        if (existingSuccess) existingSuccess.remove();
+    }
+
+    clearValidation(input) {
+        this.clearFieldStatus(input);
+    }
+
+    async handleLogin(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        // Validar campos
+        if (!this.validateEmail(document.getElementById('loginEmail')) ||
+            !this.validatePassword(document.getElementById('loginPassword'))) {
+            return;
+        }
+        
+        try {
+            this.showLoadingState('loginForm');
+            await this.performLogin(email, password);
+        } catch (error) {
+            this.showAuthError(error.message);
+        }
+    }
+
+    async handleRegister(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('registerUsername').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const fullName = document.getElementById('registerFullName').value;
+        
+        // Validar todos os campos
+        if (!this.validateUsername(document.getElementById('registerUsername')) ||
+            !this.validateEmail(document.getElementById('registerEmail')) ||
+            !this.validatePassword(document.getElementById('registerPassword')) ||
+            !fullName.trim()) {
+            return;
+        }
+        
+        try {
+            this.showLoadingState('registerForm');
+            await this.performRegister({ username, email, password, fullName });
+        } catch (error) {
+            this.showAuthError(error.message);
+        }
+    }
+
+    async performLogin(email, password) {
+        try {
+            // Simular chamada de API
+            const response = await this.simulateApiCall('/api/auth/login', {
+                email,
+                password
+            });
+            
+            if (response.success) {
+                this.setAuthData(response.token, response.user);
+                this.showAuthSuccess('Login realizado com sucesso! 🎉');
+                this.redirectAfterAuth();
+            } else {
+                throw new Error(response.message || 'Erro no login');
+            }
+        } catch (error) {
+            throw new Error('Credenciais inválidas. Tente novamente.');
+        }
+    }
+
+    async performRegister(userData) {
+        try {
+            // Simular chamada de API
+            const response = await this.simulateApiCall('/api/auth/register', userData);
+            
+            if (response.success) {
+                this.setAuthData(response.token, response.user);
+                this.showAuthSuccess('Cadastro realizado com sucesso! 🚀');
+                this.redirectAfterAuth();
+            } else {
+                throw new Error(response.message || 'Erro no cadastro');
+            }
+        } catch (error) {
+            throw new Error('Erro ao criar conta. Tente novamente.');
+        }
+    }
+
+    async simulateApiCall(endpoint, data) {
+        // Simular delay de rede
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Simular validações
+        if (endpoint.includes('login')) {
+            if (data.email === 'admin@fitbattle.com' && data.password === 'password') {
+                return {
+                    success: true,
+                    token: 'mock_jwt_token_' + Date.now(),
+                    user: {
+                        id: 1,
+                        username: 'admin',
+                        email: data.email,
+                        fullName: 'Administrador',
+                        totalPoints: 2500,
+                        currentLevel: 25,
+                        currentStreak: 7,
+                        profileImage: null
+                    }
+                };
+            } else {
+                return {
+                    success: false,
+                    message: 'Email ou senha incorretos'
+                };
+            }
+        } else if (endpoint.includes('register')) {
+            // Simular verificação de username/email único
+            if (data.username === 'admin') {
+                return {
+                    success: false,
+                    message: 'Nome de usuário já existe'
+                };
+            }
+            
+            return {
+                success: true,
+                token: 'mock_jwt_token_' + Date.now(),
+                user: {
+                    id: Date.now(),
+                    username: data.username,
+                    email: data.email,
+                    fullName: data.fullName,
+                    totalPoints: 0,
+                    currentLevel: 1,
+                    currentStreak: 0,
+                    profileImage: null
+                }
+            };
+        }
+        
+        throw new Error('Endpoint não encontrado');
+    }
+
+    setAuthData(token, user) {
+        this.token = token;
+        this.user = user;
+        
+        localStorage.setItem('fitBattleToken', token);
+        localStorage.setItem('fitBattleUser', JSON.stringify(user));
+        
+        // Disparar evento de autenticação
+        window.dispatchEvent(new CustomEvent('auth:login', { detail: { user } }));
+    }
+
+    clearAuthData() {
+        this.token = null;
+        this.user = null;
+        
+        localStorage.removeItem('fitBattleToken');
+        localStorage.removeItem('fitBattleUser');
+        
+        // Disparar evento de logout
+        window.dispatchEvent(new CustomEvent('auth:logout'));
+    }
+
+    checkAuthStatus() {
+        if (this.token && this.user) {
+            this.updateUIForAuthenticatedUser();
+        } else {
+            this.updateUIForUnauthenticatedUser();
+        }
+    }
+
+    updateUIForAuthenticatedUser() {
+        // Atualizar botões de autenticação
+        const authContainer = document.querySelector('.nav-auth');
+        if (authContainer) {
+            authContainer.innerHTML = `
+                <div class="user-menu">
+                    <button class="btn btn-outline user-profile-btn">
+                        <span class="user-avatar">👤</span>
+                        <span class="username">${this.user.username}</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="user-dropdown">
+                        <a href="#profile" class="dropdown-item">👤 Meu Perfil</a>
+                        <a href="#dashboard" class="dropdown-item">📊 Dashboard</a>
+                        <a href="#settings" class="dropdown-item">⚙️ Configurações</a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item logout-btn" onclick="authManager.logout()">🚪 Sair</button>
+                    </div>
+                </div>
+            `;
+            
+            // Configurar dropdown do usuário
+            this.setupUserDropdown();
+        }
+        
+        // Atualizar estatísticas
+        this.updateUserStats();
+        
+        // Fechar modais de autenticação
+        this.closeAuthModals();
+    }
+
+    updateUIForUnauthenticatedUser() {
+        const authContainer = document.querySelector('.nav-auth');
+        if (authContainer) {
+            authContainer.innerHTML = `
+                <button class="btn btn-outline" id="loginBtn">🔑 Login</button>
+                <button class="btn btn-primary" id="registerBtn">🚀 Cadastrar</button>
+            `;
+            
+            // Reconfigurar event listeners
+            document.getElementById('loginBtn')?.addEventListener('click', () => this.showModal('loginModal'));
+            document.getElementById('registerBtn')?.addEventListener('click', () => this.showModal('registerModal'));
+        }
+    }
+
+    setupUserDropdown() {
+        const userProfileBtn = document.querySelector('.user-profile-btn');
+        const userDropdown = document.querySelector('.user-dropdown');
+        
+        if (userProfileBtn && userDropdown) {
+            userProfileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+            
+            // Fechar dropdown ao clicar fora
+            document.addEventListener('click', () => {
+                userDropdown.classList.remove('show');
+            });
+        }
+    }
+
+    updateUserStats() {
+        if (this.user) {
+            // Atualizar estatísticas na página
+            const statCards = document.querySelectorAll('.stat-card');
+            if (statCards.length >= 3) {
+                statCards[0].querySelector('.stat-value').textContent = this.user.totalPoints + '+';
+                statCards[1].querySelector('.stat-value').textContent = this.user.currentLevel;
+                statCards[2].querySelector('.stat-value').textContent = this.user.currentStreak;
+            }
+        }
+    }
+
+    closeAuthModals() {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => {
+            modal.style.display = 'none';
+        });
+        document.body.style.overflow = 'auto';
+    }
+
+    showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Limpar formulários
+            this.clearForms(modalId);
+        }
+    }
+
+    clearForms(modalId) {
+        const form = document.getElementById(modalId.replace('Modal', 'Form'));
+        if (form) {
+            form.reset();
+            // Limpar validações
+            form.querySelectorAll('input').forEach(input => {
+                this.clearFieldStatus(input);
+            });
+        }
+    }
+
+    showLoadingState(formId) {
+        const form = document.getElementById(formId);
+        if (form) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner"></span> Carregando...';
+            }
+        }
+    }
+
+    hideLoadingState(formId) {
+        const form = document.getElementById(formId);
+        if (form) {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                if (formId === 'loginForm') {
+                    submitBtn.innerHTML = '🔑 Entrar';
+                } else {
+                    submitBtn.innerHTML = '🚀 Cadastrar';
+                }
+            }
+        }
+    }
+
+    showAuthSuccess(message) {
+        this.showNotification(message, 'success');
+        this.hideLoadingState('loginForm');
+        this.hideLoadingState('registerForm');
+    }
+
+    showAuthError(message) {
+        this.showNotification(message, 'error');
+        this.hideLoadingState('loginForm');
+        this.hideLoadingState('registerForm');
+    }
+
+    showNotification(message, type = 'info') {
+        // Usar o sistema de notificação da aplicação principal
+        if (window.app && window.app.showNotification) {
+            window.app.showNotification(message, type);
+        } else {
+            // Fallback para notificação simples
+            alert(message);
+        }
+    }
+
+    redirectAfterAuth() {
+        // Redirecionar para dashboard ou página principal
+        setTimeout(() => {
+            window.location.hash = '#home';
+            location.reload();
+        }, 1000);
+    }
+
+    logout() {
+        this.clearAuthData();
+        this.updateUIForUnauthenticatedUser();
+        this.showNotification('👋 Logout realizado com sucesso!', 'success');
+        
+        // Redirecionar para página inicial
+        setTimeout(() => {
+            window.location.hash = '#home';
+            location.reload();
+        }, 1000);
+    }
+
+    isAuthenticated() {
+        return !!(this.token && this.user);
+    }
+
+    getCurrentUser() {
+        return this.user;
+    }
+
+    getToken() {
+        return this.token;
+    }
+}
+
+// Inicializar gerenciador de autenticação
+let authManager;
+document.addEventListener('DOMContentLoaded', () => {
+    authManager = new AuthManager();
 });
 
-/**
- * Configura os handlers de autenticação
- */
-function setupAuthHandlers() {
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    
-    if (loginForm) {
-        loginForm.removeEventListener('submit', handleLogin);
-        loginForm.addEventListener('submit', handleLogin);
+// Adicionar estilos para o dropdown do usuário
+const userMenuStyles = document.createElement('style');
+userMenuStyles.textContent = `
+    .user-menu {
+        position: relative;
     }
     
-    if (registerForm) {
-        registerForm.removeEventListener('submit', handleRegister);
-        registerForm.addEventListener('submit', handleRegister);
-    }
-}
-
-/**
- * Handler do formulário de login
- */
-async function handleLogin(e) {
-    e.preventDefault();
-    
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    
-    // Validação básica
-    if (!email || !password) {
-        showNotification('Por favor, preencha todos os campos', 'error');
-        return;
+    .user-profile-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
     }
     
-    try {
-        // Mostra loading
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Entrando...';
-        submitBtn.disabled = true;
-        
-        // Faz requisição de login
-        const response = await apiRequest('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
-        
-        if (response.status === 'success') {
-            // Salva token e dados do usuário
-            localStorage.setItem('authToken', response.data.token);
-            localStorage.setItem('userData', JSON.stringify(response.data.usuario));
-            
-            // Atualiza estado global
-            currentUser = response.data.usuario;
-            isAuthenticated = true;
-            
-            // Mostra interface autenticada
-            showAuthenticatedUI();
-            
-            // Carrega dados iniciais
-            loadDashboardData();
-            
-            showNotification('Login realizado com sucesso! Bem-vindo, ' + currentUser.nome, 'success');
+    .user-avatar {
+        font-size: 1.2rem;
+    }
+    
+    .username {
+        font-weight: 600;
+        color: #667eea;
+    }
+    
+    .dropdown-arrow {
+        font-size: 0.8rem;
+        transition: transform 0.2s;
+    }
+    
+    .user-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.2s;
+        z-index: 1000;
+        margin-top: 0.5rem;
+    }
+    
+    .user-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .dropdown-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.2s;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .dropdown-divider {
+        height: 1px;
+        background-color: #e9ecef;
+        margin: 0.5rem 0;
+    }
+    
+    .logout-btn {
+        color: #dc3545;
+    }
+    
+    .logout-btn:hover {
+        background-color: #f8d7da;
+    }
+    
+    .spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 0.5rem;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    .field-error,
+    .field-success {
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
         }
-        
-    } catch (error) {
-        console.error('Erro no login:', error);
-        showNotification(error.message || 'Erro ao fazer login', 'error');
-    } finally {
-        // Restaura botão
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    }
-}
-
-/**
- * Handler do formulário de registro
- */
-async function handleRegister(e) {
-    e.preventDefault();
-    
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
-    
-    // Validação básica
-    if (!name || !email || !password || !passwordConfirm) {
-        showNotification('Por favor, preencha todos os campos', 'error');
-        return;
-    }
-    
-    if (password !== passwordConfirm) {
-        showNotification('As senhas não coincidem', 'error');
-        return;
-    }
-    
-    if (password.length < 6) {
-        showNotification('A senha deve ter pelo menos 6 caracteres', 'error');
-        return;
-    }
-    
-    // Validação de email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showNotification('Por favor, insira um email válido', 'error');
-        return;
-    }
-    
-    try {
-        // Mostra loading
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Cadastrando...';
-        submitBtn.disabled = true;
-        
-        // Faz requisição de registro
-        const response = await apiRequest('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({
-                nome: name,
-                email: email,
-                password: password
-            })
-        });
-        
-        if (response.status === 'success') {
-            showNotification('Cadastro realizado com sucesso! Faça login para continuar.', 'success');
-            
-            // Limpa formulário
-            e.target.reset();
-            
-            // Muda para aba de login
-            const loginTab = document.querySelector('.tab-btn[data-tab="login"]');
-            if (loginTab) {
-                loginTab.click();
-            }
-            
-            // Preenche email no formulário de login
-            const loginEmail = document.getElementById('loginEmail');
-            if (loginEmail) {
-                loginEmail.value = email;
-            }
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-    } catch (error) {
-        console.error('Erro no registro:', error);
-        showNotification(error.message || 'Erro ao fazer cadastro', 'error');
-    } finally {
-        // Restaura botão
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    }
-}
-
-/**
- * Verifica se o token é válido
- */
-async function validateToken() {
-    const token = localStorage.getItem('authToken');
-    
-    if (!token) {
-        return false;
     }
     
-    try {
-        const response = await apiRequest('/auth/profile', {
-            method: 'GET'
-        });
-        
-        if (response.status === 'success') {
-            // Atualiza dados do usuário
-            currentUser = response.data;
-            localStorage.setItem('userData', JSON.stringify(response.data));
-            return true;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Erro ao validar token:', error);
-        return false;
-    }
-}
-
-/**
- * Atualiza dados do usuário
- */
-async function updateUserData() {
-    if (!isAuthenticated) return;
-    
-    try {
-        const response = await apiRequest('/usuarios/' + currentUser.id, {
-            method: 'GET'
-        });
-        
-        if (response.status === 'success') {
-            currentUser = response.data;
-            localStorage.setItem('userData', JSON.stringify(response.data));
-            updateUserInfo();
-        }
-    } catch (error) {
-        console.error('Erro ao atualizar dados do usuário:', error);
-    }
-}
-
-/**
- * Recupera senha
- */
-async function recoverPassword(email) {
-    try {
-        const response = await apiRequest('/auth/recover', {
-            method: 'POST',
-            body: JSON.stringify({
-                email: email
-            })
-        });
-        
-        if (response.status === 'success') {
-            showNotification('Email de recuperação enviado!', 'success');
-            return true;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Erro ao recuperar senha:', error);
-        showNotification(error.message || 'Erro ao enviar email de recuperação', 'error');
-        return false;
-    }
-}
-
-/**
- * Redefine senha
- */
-async function resetPassword(token, newPassword) {
-    try {
-        const response = await apiRequest('/auth/reset', {
-            method: 'POST',
-            body: JSON.stringify({
-                token: token,
-                password: newPassword
-            })
-        });
-        
-        if (response.status === 'success') {
-            showNotification('Senha redefinida com sucesso!', 'success');
-            return true;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Erro ao redefinir senha:', error);
-        showNotification(error.message || 'Erro ao redefinir senha', 'error');
-        return false;
-    }
-}
-
-/**
- * Altera senha do usuário logado
- */
-async function changePassword(currentPassword, newPassword) {
-    if (!isAuthenticated) {
-        showNotification('Você precisa estar logado para alterar a senha', 'error');
-        return false;
+    input.error {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
     }
     
-    try {
-        const response = await apiRequest('/auth/change-password', {
-            method: 'POST',
-            body: JSON.stringify({
-                current_password: currentPassword,
-                new_password: newPassword
-            })
-        });
-        
-        if (response.status === 'success') {
-            showNotification('Senha alterada com sucesso!', 'success');
-            return true;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Erro ao alterar senha:', error);
-        showNotification(error.message || 'Erro ao alterar senha', 'error');
-        return false;
+    input.success {
+        border-color: #28a745;
+        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
     }
-}
-
-/**
- * Atualiza perfil do usuário
- */
-async function updateProfile(profileData) {
-    if (!isAuthenticated) {
-        showNotification('Você precisa estar logado para atualizar o perfil', 'error');
-        return false;
-    }
-    
-    try {
-        const response = await apiRequest('/usuarios/' + currentUser.id, {
-            method: 'PUT',
-            body: JSON.stringify(profileData)
-        });
-        
-        if (response.status === 'success') {
-            // Atualiza dados do usuário
-            currentUser = response.data;
-            localStorage.setItem('userData', JSON.stringify(response.data));
-            updateUserInfo();
-            
-            showNotification('Perfil atualizado com sucesso!', 'success');
-            return true;
-        }
-        
-        return false;
-    } catch (error) {
-        console.error('Erro ao atualizar perfil:', error);
-        showNotification(error.message || 'Erro ao atualizar perfil', 'error');
-        return false;
-    }
-}
-
-/**
- * Função de logout (sobrescreve a do app.js)
- */
-function logout() {
-    // Remove dados de autenticação
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    
-    // Reseta estado global
-    currentUser = null;
-    isAuthenticated = false;
-    
-    // Esconde informações do usuário
-    const userInfo = document.getElementById('userInfo');
-    if (userInfo) {
-        userInfo.style.display = 'none';
-    }
-    
-    // Mostra modal de autenticação
-    showAuthModal();
-    
-    // Limpa dados das seções
-    clearAllSections();
-    
-    showNotification('Logout realizado com sucesso!', 'success');
-}
-
-/**
- * Verifica se o usuário tem permissão para uma ação
- */
-function hasPermission(permission) {
-    if (!isAuthenticated || !currentUser) {
-        return false;
-    }
-    
-    // Implementar sistema de permissões se necessário
-    return true;
-}
-
-/**
- * Middleware de autenticação para requisições
- */
-function requireAuth() {
-    if (!isAuthenticated) {
-        showNotification('Você precisa estar logado para acessar esta funcionalidade', 'error');
-        showAuthModal();
-        return false;
-    }
-    return true;
-}
-
-// Exporta funções para uso em outros módulos
-window.auth = {
-    handleLogin,
-    handleRegister,
-    validateToken,
-    updateUserData,
-    recoverPassword,
-    resetPassword,
-    changePassword,
-    updateProfile,
-    logout,
-    hasPermission,
-    requireAuth
-};
+`;
+document.head.appendChild(userMenuStyles);

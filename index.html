@@ -3,403 +3,315 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏆 Vida Equilibrada - Sistema Gamificado</title>
+    <title>🏃‍♂️💪 FIT BATTLE - A Guerra pela Saúde</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <i class="fas fa-shield-alt"></i>
-                    <h1>Vida Equilibrada</h1>
-                </div>
-                <nav class="nav">
-                    <ul>
-                        <li><a href="#dashboard" class="nav-link active" data-section="dashboard">Dashboard</a></li>
-                        <li><a href="#habitos" class="nav-link" data-section="habitos">Hábitos</a></li>
-                        <li><a href="#ranking" class="nav-link" data-section="ranking">Ranking</a></li>
-                        <li><a href="#conquistas" class="nav-link" data-section="conquistas">Conquistas</a></li>
-                        <li><a href="#perfil" class="nav-link" data-section="perfil">Perfil</a></li>
-                    </ul>
-                </nav>
-                <div class="user-info" id="userInfo" style="display: none;">
-                    <div class="user-avatar">
-                        <i class="fas fa-user-circle"></i>
-                    </div>
-                    <div class="user-details">
-                        <span class="user-name" id="userName">Usuário</span>
-                        <span class="user-level" id="userLevel">Nível 1</span>
-                    </div>
-                    <button class="btn-logout" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
-                </div>
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1>🏃‍♂️💪 FIT BATTLE</h1>
+                <span>A Guerra pela Saúde</span>
             </div>
-        </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link active">🏠 Início</a>
+                <a href="#ranking" class="nav-link">🏆 Ranking</a>
+                <a href="#challenges" class="nav-link">⚔️ Desafios</a>
+                <a href="#profile" class="nav-link">👤 Perfil</a>
+            </div>
+            <div class="nav-auth">
+                <button class="btn btn-outline" id="loginBtn">🔑 Login</button>
+                <button class="btn btn-primary" id="registerBtn">🚀 Cadastrar</button>
+            </div>
+        </nav>
     </header>
-
-    <!-- Login/Register Modal -->
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Bem-vindo, Guerreiro do Equilíbrio!</h2>
-                <p>Entre na sua conta ou crie uma nova para começar sua jornada</p>
-            </div>
-            <div class="modal-body">
-                <div class="auth-tabs">
-                    <button class="tab-btn active" data-tab="login">Entrar</button>
-                    <button class="tab-btn" data-tab="register">Cadastrar</button>
-                </div>
-                
-                <!-- Login Form -->
-                <form id="loginForm" class="auth-form">
-                    <div class="form-group">
-                        <label for="loginEmail">Email</label>
-                        <input type="email" id="loginEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Senha</label>
-                        <input type="password" id="loginPassword" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Entrar</button>
-                </form>
-
-                <!-- Register Form -->
-                <form id="registerForm" class="auth-form" style="display: none;">
-                    <div class="form-group">
-                        <label for="registerName">Nome</label>
-                        <input type="text" id="registerName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerEmail">Email</label>
-                        <input type="email" id="registerEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPassword">Senha</label>
-                        <input type="password" id="registerPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="registerPasswordConfirm">Confirmar Senha</label>
-                        <input type="password" id="registerPasswordConfirm" required>
-                    </div>
-                    <button type="submit" class="btn-primary">Cadastrar</button>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Main Content -->
     <main class="main">
-        <div class="container">
-            <!-- Dashboard Section -->
-            <section id="dashboard" class="section active">
-                <div class="dashboard-header">
-                    <h2>Dashboard do Guerreiro</h2>
-                    <p>Monitore seu progresso e conquistas</p>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="userPoints">0</h3>
-                            <p>Pontos</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-fire"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="userStreak">0</h3>
-                            <p>Streak Atual</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-trophy"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="userLevel">1</h3>
-                            <p>Nível</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-medal"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="userBadges">0</h3>
-                            <p>Conquistas</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dashboard-content">
-                    <div class="dashboard-left">
-                        <div class="card">
-                            <h3>Progresso do Nível</h3>
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="levelProgress"></div>
-                            </div>
-                            <p id="levelProgressText">0 / 100 pontos para o próximo nível</p>
-                        </div>
-                        
-                        <div class="card">
-                            <h3>Hábitos de Hoje</h3>
-                            <div id="todayHabits" class="habits-list">
-                                <p class="loading">Carregando hábitos...</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="dashboard-right">
-                        <div class="card">
-                            <h3>Top 5 Ranking</h3>
-                            <div id="topRanking" class="ranking-list">
-                                <p class="loading">Carregando ranking...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <h3>Últimas Conquistas</h3>
-                            <div id="recentBadges" class="badges-list">
-                                <p class="loading">Carregando conquistas...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Hábitos Section -->
-            <section id="habitos" class="section">
-                <div class="section-header">
-                    <h2>Gerenciar Hábitos</h2>
-                    <button class="btn-primary" onclick="showCreateHabitModal()">
-                        <i class="fas fa-plus"></i> Novo Hábito
+        <!-- Hero Section -->
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">DOMINE O RANKING</span><br>
+                    <span class="hero-subtitle">Prove que você é o mais saudável!</span>
+                </h1>
+                <p class="hero-description">
+                    Entre na batalha fitness mais épica de todos os tempos! 
+                    Compita com pessoas do mundo todo, conquiste badges, 
+                    suba de nível e torne-se uma lenda do fitness!
+                </p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-large" id="startBattleBtn">
+                        ⚔️ INICIAR BATALHA
+                    </button>
+                    <button class="btn btn-outline btn-large" id="learnMoreBtn">
+                        📚 Saiba Mais
                     </button>
                 </div>
-                
-                <div class="habits-container">
-                    <div class="habits-filters">
-                        <select id="categoryFilter">
-                            <option value="">Todas as Categorias</option>
-                            <option value="saude">Saúde</option>
-                            <option value="produtividade">Produtividade</option>
-                            <option value="bem_estar">Bem-estar</option>
-                            <option value="aprendizado">Aprendizado</option>
-                        </select>
-                        <select id="statusFilter">
-                            <option value="">Todos os Status</option>
-                            <option value="ativo">Ativo</option>
-                            <option value="inativo">Inativo</option>
-                        </select>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-value">10K+</div>
+                        <div class="stat-label">Guerreiros</div>
                     </div>
-                    
-                    <div id="habitsList" class="habits-grid">
-                        <p class="loading">Carregando hábitos...</p>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-value">50K+</div>
+                        <div class="stat-label">Exercícios</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value">1M+</div>
+                        <div class="stat-label">Pontos</div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Ranking Section -->
-            <section id="ranking" class="section">
-                <div class="section-header">
-                    <h2>Ranking dos Guerreiros</h2>
-                    <div class="ranking-filters">
-                        <select id="rankingFilter">
-                            <option value="pontos">Por Pontos</option>
-                            <option value="badges">Por Conquistas</option>
-                            <option value="streak">Por Streak</option>
-                        </select>
-                        <select id="rankingPeriod">
-                            <option value="geral">Geral</option>
-                            <option value="semana">Esta Semana</option>
-                            <option value="mes">Este Mês</option>
-                        </select>
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">⚔️ Por que escolher o FIT BATTLE?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏆</div>
+                        <h3>Competição Real</h3>
+                        <p>Enfrente pessoas reais em desafios épicos de fitness. Não é só contra você mesmo!</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎮</div>
+                        <h3>Gamificação</h3>
+                        <p>Níveis, badges, streaks e ranking em tempo real. Transforme exercícios em diversão!</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🌍</div>
+                        <h3>Ranking Global</h3>
+                        <p>Veja como você se posiciona no mundo todo. Compita com atletas de todos os países!</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚔️</div>
+                        <h3>Desafios Personalizados</h3>
+                        <p>Crie ou participe de desafios específicos. Aposte pontos e prove sua superioridade!</p>
                     </div>
                 </div>
-                
-                <div id="rankingList" class="ranking-container">
-                    <p class="loading">Carregando ranking...</p>
-                </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Conquistas Section -->
-            <section id="conquistas" class="section">
-                <div class="section-header">
-                    <h2>Conquistas e Badges</h2>
-                </div>
-                
-                <div class="badges-container">
-                    <div class="badges-stats">
-                        <div class="badge-stat">
-                            <h3 id="totalBadges">0</h3>
-                            <p>Total de Conquistas</p>
-                        </div>
-                        <div class="badge-stat">
-                            <h3 id="userBadgesCount">0</h3>
-                            <p>Suas Conquistas</p>
-                        </div>
-                        <div class="badge-stat">
-                            <h3 id="badgesProgress">0%</h3>
-                            <p>Progresso</p>
-                        </div>
+        <!-- How It Works -->
+        <section class="how-it-works">
+            <div class="container">
+                <h2 class="section-title">🚀 Como Funciona</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">📱</div>
+                        <h3>Registre Exercícios</h3>
+                        <p>Registre seus treinos, corridas, yoga e qualquer atividade física</p>
                     </div>
-                    
-                    <div id="badgesList" class="badges-grid">
-                        <p class="loading">Carregando conquistas...</p>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">⚡</div>
+                        <h3>Ganhe Pontos</h3>
+                        <p>Acumule pontos baseados na intensidade e consistência</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🏆</div>
+                        <h3>Suba no Ranking</h3>
+                        <p>Veja sua posição e desafie outros para subir no ranking</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">👑</div>
+                        <h3>Torne-se Lendário</h3>
+                        <p>Conquiste badges e torne-se uma lenda do fitness!</p>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Perfil Section -->
-            <section id="perfil" class="section">
-                <div class="section-header">
-                    <h2>Perfil do Guerreiro</h2>
-                    <button class="btn-secondary" onclick="showEditProfileModal()">
-                        <i class="fas fa-edit"></i> Editar Perfil
+        <!-- Exercise Categories -->
+        <section class="categories">
+            <div class="container">
+                <h2 class="section-title">💪 Categorias de Exercícios</h2>
+                <div class="categories-grid">
+                    <div class="category-card" data-category="running">
+                        <div class="category-icon">🏃‍♂️</div>
+                        <h3>Corrida</h3>
+                        <p>10 pontos/km + bônus</p>
+                    </div>
+                    <div class="category-card" data-category="gym">
+                        <div class="category-icon">💪</div>
+                        <h3>Academia</h3>
+                        <p>15 pontos/série + bônus</p>
+                    </div>
+                    <div class="category-card" data-category="yoga">
+                        <div class="category-icon">🧘‍♀️</div>
+                        <h3>Yoga</h3>
+                        <p>8 pontos/minuto + bônus</p>
+                    </div>
+                    <div class="category-card" data-category="hiit">
+                        <div class="category-icon">⚡</div>
+                        <h3>HIIT</h3>
+                        <p>20 pontos/sessão + bônus</p>
+                    </div>
+                    <div class="category-card" data-category="cycling">
+                        <div class="category-icon">🚴‍♂️</div>
+                        <h3>Ciclismo</h3>
+                        <p>8 pontos/km + bônus</p>
+                    </div>
+                    <div class="category-card" data-category="swimming">
+                        <div class="category-icon">🏊‍♂️</div>
+                        <h3>Natação</h3>
+                        <p>15 pontos/minuto + bônus</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ranking Preview -->
+        <section id="ranking" class="ranking-preview">
+            <div class="container">
+                <h2 class="section-title">🏆 Ranking Global</h2>
+                <div class="ranking-tabs">
+                    <button class="tab-btn active" data-tab="global">🌍 Global</button>
+                    <button class="tab-btn" data-tab="running">🏃‍♂️ Corrida</button>
+                    <button class="tab-btn" data-tab="gym">💪 Academia</button>
+                    <button class="tab-btn" data-tab="yoga">🧘‍♀️ Yoga</button>
+                </div>
+                <div class="ranking-list" id="rankingList">
+                    <!-- Ranking será carregado via JavaScript -->
+                </div>
+                <div class="ranking-actions">
+                    <button class="btn btn-outline" id="viewFullRankingBtn">
+                        📊 Ver Ranking Completo
                     </button>
                 </div>
-                
-                <div class="profile-container">
-                    <div class="profile-card">
-                        <div class="profile-avatar">
-                            <i class="fas fa-user-circle"></i>
-                        </div>
-                        <div class="profile-info">
-                            <h3 id="profileName">Nome do Usuário</h3>
-                            <p id="profileEmail">email@exemplo.com</p>
-                            <div class="profile-stats">
-                                <span>Nível <span id="profileLevel">1</span></span>
-                                <span><span id="profilePoints">0</span> pontos</span>
-                                <span>Streak: <span id="profileStreak">0</span></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="profile-details">
-                        <div class="card">
-                            <h3>Estatísticas Detalhadas</h3>
-                            <div id="profileStats" class="stats-list">
-                                <p class="loading">Carregando estatísticas...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="card">
-                            <h3>Histórico de Atividade</h3>
-                            <div id="activityHistory" class="activity-list">
-                                <p class="loading">Carregando histórico...</p>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </section>
+
+        <!-- Challenges Preview -->
+        <section id="challenges" class="challenges-preview">
+            <div class="container">
+                <h2 class="section-title">⚔️ Desafios Ativos</h2>
+                <div class="challenges-grid" id="challengesGrid">
+                    <!-- Desafios serão carregados via JavaScript -->
                 </div>
-            </section>
-        </div>
+                <div class="challenges-actions">
+                    <button class="btn btn-primary" id="createChallengeBtn">
+                        ⚔️ Criar Desafio
+                    </button>
+                    <button class="btn btn-outline" id="viewAllChallengesBtn">
+                        📋 Ver Todos
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <h2>🚀 Pronto para a Batalha?</h2>
+                <p>Junte-se a milhares de guerreiros fitness e prove que você é o melhor!</p>
+                <button class="btn btn-primary btn-large" id="joinNowBtn">
+                    ⚔️ ENTRAR AGORA
+                </button>
+            </div>
+        </section>
     </main>
 
-    <!-- Create Habit Modal -->
-    <div id="createHabitModal" class="modal">
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>🏃‍♂️💪 FIT BATTLE</h3>
+                    <p>A Guerra pela Saúde</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-section">
+                        <h4>Produto</h4>
+                        <a href="#features">Funcionalidades</a>
+                        <a href="#pricing">Preços</a>
+                        <a href="#api">API</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Comunidade</h4>
+                        <a href="#ranking">Ranking</a>
+                        <a href="#challenges">Desafios</a>
+                        <a href="#forum">Fórum</a>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Suporte</h4>
+                        <a href="#help">Ajuda</a>
+                        <a href="#contact">Contato</a>
+                        <a href="#docs">Documentação</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 FIT BATTLE. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div id="loginModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Criar Novo Hábito</h2>
-                <button class="modal-close" onclick="closeModal('createHabitModal')">&times;</button>
+                <h3>🔑 Login</h3>
+                <span class="close">&times;</span>
             </div>
-            <div class="modal-body">
-                <form id="createHabitForm">
-                    <div class="form-group">
-                        <label for="habitName">Nome do Hábito</label>
-                        <input type="text" id="habitName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="habitDescription">Descrição</label>
-                        <textarea id="habitDescription" rows="3"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="habitCategory">Categoria</label>
-                            <select id="habitCategory" required>
-                                <option value="saude">Saúde</option>
-                                <option value="produtividade">Produtividade</option>
-                                <option value="bem_estar">Bem-estar</option>
-                                <option value="aprendizado">Aprendizado</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="habitFrequency">Frequência</label>
-                            <select id="habitFrequency" required>
-                                <option value="diario">Diário</option>
-                                <option value="semanal">Semanal</option>
-                                <option value="mensal">Mensal</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="habitPoints">Pontos por Completamento</label>
-                        <input type="number" id="habitPoints" value="10" min="1" max="100" required>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="closeModal('createHabitModal')">Cancelar</button>
-                        <button type="submit" class="btn-primary">Criar Hábito</button>
-                    </div>
-                </form>
-            </div>
+            <form id="loginForm" class="modal-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Senha</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">🔑 Entrar</button>
+            </form>
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="editProfileModal" class="modal">
+    <div id="registerModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Editar Perfil</h2>
-                <button class="modal-close" onclick="closeModal('editProfileModal')">&times;</button>
+                <h3>🚀 Cadastro</h3>
+                <span class="close">&times;</span>
             </div>
-            <div class="modal-body">
-                <form id="editProfileForm">
-                    <div class="form-group">
-                        <label for="editName">Nome</label>
-                        <input type="text" id="editName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editEmail">Email</label>
-                        <input type="email" id="editEmail" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editPassword">Nova Senha (opcional)</label>
-                        <input type="password" id="editPassword">
-                    </div>
-                    <div class="form-group">
-                        <label for="editPasswordConfirm">Confirmar Nova Senha</label>
-                        <input type="password" id="editPasswordConfirm">
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="closeModal('editProfileModal')">Cancelar</button>
-                        <button type="submit" class="btn-primary">Salvar Alterações</button>
-                    </div>
-                </form>
-            </div>
+            <form id="registerForm" class="modal-form">
+                <div class="form-group">
+                    <label for="registerUsername">Nome de Usuário</label>
+                    <input type="text" id="registerUsername" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Senha</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerFullName">Nome Completo</label>
+                    <input type="text" id="registerFullName" required>
+                </div>
+                <button type="submit" class="btn btn-primary">🚀 Cadastrar</button>
+            </form>
         </div>
     </div>
-
-    <!-- Notification Container -->
-    <div id="notificationContainer" class="notification-container"></div>
 
     <!-- Scripts -->
-    <script src="assets/js/config.js"></script>
     <script src="assets/js/app.js"></script>
     <script src="assets/js/auth.js"></script>
-    <script src="assets/js/habits.js"></script>
     <script src="assets/js/ranking.js"></script>
-    <script src="assets/js/badges.js"></script>
-    <script src="assets/js/profile.js"></script>
+    <script src="assets/js/challenges.js"></script>
 </body>
 </html>
